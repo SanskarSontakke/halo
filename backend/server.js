@@ -415,7 +415,7 @@ app.get('/api/questions', (req, res) => {
       query += ` AND question_type IN (${placeholders})`;
       params.push(...types);
     } else {
-      query += ' AND question_type = ?';
+    query += ' AND question_type = ?';
       params.push(types[0]);
     }
   }

@@ -55,8 +55,12 @@ function SortableRow({ q }: { q: Question }) {
 }
 
 export default function CreatePage() {
+  const [mounted, setMounted] = useState(false)
   const [filters, setFilters] = useState<Filters>(() => {
     try { const s = localStorage.getItem("halo.create.filters"); return s ? JSON.parse(s) : { topics: [], types: [] } } catch { return { topics: [], types: [] } }
+  })
+  const [details, setDetails] = useState<{ schoolName: string; className: string; topicName: string; date: string }>(() => {
+    try { const s = localStorage.getItem("halo.create.details"); return s ? JSON.parse(s) : { schoolName: "", className: "", topicName: "", date: "" } } catch { return { schoolName: "", className: "", topicName: "", date: "" } }
   })
   const [options, setOptions] = useState<{ classes?: string[]; subjects?: string[]; topics?: string[]; types?: string[] }>({ classes: [], subjects: [], topics: [], types: [] })
   const [page, setPage] = useState(1)
@@ -66,9 +70,15 @@ export default function CreatePage() {
 
   const sensors = useSensors(useSensor(PointerSensor))
 
+  useEffect(() => { setMounted(true) }, [])
+
   useEffect(() => {
     localStorage.setItem("halo.create.filters", JSON.stringify(filters))
   }, [filters])
+
+  useEffect(() => {
+    localStorage.setItem("halo.create.details", JSON.stringify(details))
+  }, [details])
 
   useEffect(() => {
     const p = new URLSearchParams()
@@ -120,47 +130,102 @@ export default function CreatePage() {
     const pageW = pdf.internal.pageSize.getWidth()
     const contentW = pageW - margin * 2
     let y = margin
-    pdf.setFontSize(18)
-    pdf.text("Project Halo - Question Paper", margin, y)
-    y += 10
-    pdf.setLineWidth(0.5); pdf.line(margin, y, pageW - margin, y); y += 8
+    const maxMarks = paper.reduce((sum, q) => sum + (Number(q.default_marks) || 0), 0)
+    // Top details box (compact)
+    const boxH = 28
+    pdf.setDrawColor(0,0,0); pdf.setLineWidth(0.8); pdf.rect(margin, y, contentW, boxH)
+    // Big centered school name
+    pdf.setFont("helvetica", "bold"); pdf.setFontSize(22)
+    const schoolText = (details.schoolName || '').trim() || 'SCHOOL'
+    const schoolW = pdf.getTextWidth(schoolText)
+    const schoolX = margin + (contentW - schoolW) / 2
+    pdf.text(schoolText, schoolX, y + 10)
+    // Smaller row values
+    pdf.setFont("helvetica", "normal"); pdf.setFontSize(12)
+    const topicText = `Topic: ${details.topicName || '-'}`
+    const classText = `Class: ${details.className || '-'}`
+    const dateText = `Date: ${details.date || '-'}`
+    const mmText = `Max Marks: ${maxMarks}`
+    const mmW = pdf.getTextWidth(mmText)
+    const mmX = margin + contentW - mmW - 6
+    const dateW = pdf.getTextWidth(dateText)
+    // Place rows with guaranteed spacing
+    pdf.text(topicText, margin + 6, y + 20)
+    pdf.text(classText, margin + contentW * 0.40, y + 20)
+    // Date placed to end 12pt before Max Marks
+    const tentativeDateX = mmX - dateW - 12
+    const minDateX = margin + contentW * 0.55
+    const dateX = Math.max(tentativeDateX, minDateX)
+    pdf.text(dateText, dateX, y + 20)
+    // Right aligned Max Marks
+    pdf.text(mmText, mmX, y + 20)
+    y += boxH + 8
     pdf.setFontSize(12)
     paper.forEach((q, idx) => {
       const text = `Q${idx + 1}. (${q.default_marks} marks) ${q.question_text}`
       const lines = pdf.splitTextToSize(text, contentW)
       pdf.text(lines, margin, y)
-      y += lines.length * 6 + 4
+      // even tighter spacing between questions
+      y += lines.length * 5.5 + 1
       if (y > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin }
     })
     pdf.save("question_paper.pdf")
   }
 
   return (
-    <main className="container mx-auto p-6 sm:p-8 max-w-7xl">
+    <main className="container mx-auto p-6 sm:p-8 max-w-7xl space-y-6">
+      {/* Details header */}
+      <Card className="bg-[#161626] border border-indigo-500/20 shadow-xl rounded-2xl">
+        <CardContent className="p-5 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs text-indigo-200/80">School Name</label>
+              <Input value={details.schoolName} onChange={(e) => setDetails(d => ({ ...d, schoolName: e.target.value }))} placeholder="e.g., Springdale High" className="mt-1 bg-black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"/>
+            </div>
+            <div>
+              <label className="text-xs text-indigo-200/80">Class</label>
+              <Input value={details.className} onChange={(e) => setDetails(d => ({ ...d, className: e.target.value }))} placeholder="e.g., 7th Grade" className="mt-1 bg-black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"/>
+            </div>
+            <div>
+              <label className="text-xs text-indigo-200/80">Topic</label>
+              <Input value={details.topicName} onChange={(e) => setDetails(d => ({ ...d, topicName: e.target.value }))} placeholder="e.g., Biology" className="mt-1 bg-black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"/>
+            </div>
+            <div>
+              <label className="text-xs text-indigo-200/80">Date</label>
+              <Input value={details.date} onChange={(e) => setDetails(d => ({ ...d, date: e.target.value }))} placeholder="e.g., 2025-09-23" className="mt-1 bg-black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"/>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Question Set */}
-        <Card className="bg-[#1b1b2d] border border-white/10 shadow-xl rounded-2xl">
+        <Card className="bg-[#171730] border border-indigo-500/20 shadow-xl rounded-2xl">
           <CardContent className="p-5 sm:p-7 space-y-5">
             <h2 className="text-2xl font-bold flex items-center gap-2"><BookOpen className="w-6 h-6"/> Question Set</h2>
             {/* Filters */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-muted-foreground">Class</label>
-                <Select value={filters.class || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, class: v }) }}>
-                  <SelectTrigger><SelectValue placeholder="All"/></SelectTrigger>
-                  <SelectContent>{(options.classes || []).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
+                <label className="text-xs text-indigo-200/80">Class</label>
+                {mounted && (
+                  <Select value={filters.class || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, class: v }) }}>
+                    <SelectTrigger className="bg:black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"><SelectValue placeholder="All"/></SelectTrigger>
+                    <SelectContent>{(options.classes || []).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                )}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">Subject</label>
-                <Select value={filters.subject || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, subject: v }) }}>
-                  <SelectTrigger><SelectValue placeholder="All"/></SelectTrigger>
-                  <SelectContent>{(options.subjects || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                </Select>
+                <label className="text-xs text-indigo-200/80">Subject</label>
+                {mounted && (
+                  <Select value={filters.subject || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, subject: v }) }}>
+                    <SelectTrigger className="bg:black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"><SelectValue placeholder="All"/></SelectTrigger>
+                    <SelectContent>{(options.subjects || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                )}
               </div>
               <div className={`col-span-2 ${(!filters.class || !filters.subject) ? 'opacity-60 pointer-events-none' : ''}`}>
-                <label className="text-xs text-muted-foreground">Topics</label>
-                <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-black/10">
+                <label className="text-xs text-indigo-200/80">Topics</label>
+                <div className="flex flex-wrap gap-2 p-3 border border-indigo-500/20 rounded-lg bg-gradient-to-tr from-indigo-500/5 to-fuchsia-500/5">
                   {(options.topics || []).map(t => (
                     <label key={t} className="flex items-center gap-2 text-sm">
                       <Checkbox checked={filters.topics.includes(t)} onCheckedChange={(ck) => {
@@ -173,8 +238,8 @@ export default function CreatePage() {
                 </div>
               </div>
               <div className={`col-span-2 ${(!filters.class || !filters.subject) ? 'opacity-60 pointer-events-none' : ''}`}>
-                <label className="text-xs text-muted-foreground">Type</label>
-                <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-black/10">
+                <label className="text-xs text-indigo-200/80">Type</label>
+                <div className="flex flex-wrap gap-2 p-3 border border-indigo-500/20 rounded-lg bg-gradient-to-tr from-indigo-500/5 to-fuchsia-500/5">
                   {(options.types || []).map(tp => (
                     <label key={tp} className="flex items-center gap-2 text-sm">
                       <Checkbox checked={filters.types.includes(tp)} onCheckedChange={(ck) => {
@@ -187,28 +252,30 @@ export default function CreatePage() {
                 </div>
               </div>
               <div className="col-span-2 flex items-center gap-3">
-                <Input placeholder="Search questions..." value={filters.search || ""} onChange={(e) => { setPage(1); setFilters({ ...filters, search: e.target.value }) }}/>
+                <Input placeholder="Search questions..." value={filters.search || ""} onChange={(e) => { setPage(1); setFilters({ ...filters, search: e.target.value }) }} className="bg-black/20 border-indigo-500/20 focus:ring-2 focus:ring-indigo-500/40"/>
                 <Button variant="ghost" onClick={() => { setFilters({ topics: [], types: [] }); setPage(1) }}>Clear</Button>
               </div>
             </div>
 
-            {/* List */}
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-              <div className="space-y-3">
-                {questions.map(q => (
-                  <div key={q.question_id} id={q.question_id}>
-                    <SortableRow q={q}/>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-muted-foreground">Page {page} of {totalPages}</span>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Prev</Button>
-                  <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</Button>
+            {/* List in its own scroll area */}
+            <div className="max-h-[65vh] overflow-y-auto pr-2">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                <div className="space-y-3">
+                  {questions.map(q => (
+                    <div key={q.question_id} id={q.question_id}>
+                      <SortableRow q={q}/>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </DndContext>
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs text-muted-foreground">Page {page} of {totalPages}</span>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Prev</Button>
+                    <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</Button>
+                  </div>
+                </div>
+              </DndContext>
+            </div>
           </CardContent>
         </Card>
 
@@ -219,23 +286,24 @@ export default function CreatePage() {
               <h2 className="text-2xl font-bold">Main Question Paper</h2>
               <Button size="sm" className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600" onClick={exportPDF}><Download className="w-4 h-4 mr-2"/>Export to PDF</Button>
             </div>
-
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-              <SortableContext items={paper.map(q => q.question_id)} strategy={verticalListSortingStrategy}>
-                <div className={`min-h-[200px] rounded-lg border ${paper.length ? "" : "border-dashed"} p-3 space-y-3`}>
-                  {paper.length === 0 ? (
-                    <div className="text-center text-muted-foreground">Drag questions here</div>
-                  ) : (
-                    paper.map((q) => (
-                      <div key={q.question_id} className="relative group">
-                        <SortableRow q={q}/>
-                        <Button size="sm" variant="ghost" className="absolute top-1 right-1 opacity-0 group-hover:opacity-100" onClick={() => removeFromPaper(q.question_id)}>Remove</Button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </SortableContext>
-            </DndContext>
+            <div className="max-h-[65vh] overflow-y-auto pr-2">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                <SortableContext items={paper.map(q => q.question_id)} strategy={verticalListSortingStrategy}>
+                  <div className={`min-h-[200px] rounded-lg border ${paper.length ? "" : "border-dashed"} p-3 space-y-3`}>
+                    {paper.length === 0 ? (
+                      <div className="text-center text-muted-foreground">Drag questions here</div>
+                    ) : (
+                      paper.map((q) => (
+                        <div key={q.question_id} className="relative group">
+                          <SortableRow q={q}/>
+                          <Button size="sm" variant="ghost" className="absolute top-1 right-1 opacity-0 group-hover:opacity-100" onClick={() => removeFromPaper(q.question_id)}>Remove</Button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
           </CardContent>
         </Card>
       </div>

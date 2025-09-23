@@ -75,7 +75,7 @@ export default function CreatePage() {
     if (filters.class) p.append("class", filters.class)
     if (filters.subject) p.append("subject", filters.subject)
     if (filters.topics.length) p.append("topic", filters.topics.join(","))
-    if (filters.types.length) p.append("question_type", filters.types[0])
+    if (filters.types.length) p.append("question_type", filters.types.join(","))
     p.append("page", String(page))
     p.append("limit", "10")
     fetch(`/api/questions?${p.toString()}`).then(r => r.json()).then((d) => {
@@ -158,7 +158,7 @@ export default function CreatePage() {
                   <SelectContent>{(options.subjects || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2">
+              <div className={`col-span-2 ${(!filters.class || !filters.subject) ? 'opacity-60 pointer-events-none' : ''}`}>
                 <label className="text-xs text-muted-foreground">Topics</label>
                 <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-black/10">
                   {(options.topics || []).map(t => (
@@ -172,7 +172,7 @@ export default function CreatePage() {
                   ))}
                 </div>
               </div>
-              <div className="col-span-2">
+              <div className={`col-span-2 ${(!filters.class || !filters.subject) ? 'opacity-60 pointer-events-none' : ''}`}>
                 <label className="text-xs text-muted-foreground">Type</label>
                 <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-black/10">
                   {(options.types || []).map(tp => (

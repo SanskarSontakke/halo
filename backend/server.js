@@ -409,8 +409,15 @@ app.get('/api/questions', (req, res) => {
   }
 
   if (question_type) {
-    query += ' AND question_type = ?';
-    params.push(question_type);
+    const types = String(question_type).split(',');
+    if (types.length > 1) {
+      const placeholders = types.map(() => '?').join(',');
+      query += ` AND question_type IN (${placeholders})`;
+      params.push(...types);
+    } else {
+      query += ' AND question_type = ?';
+      params.push(types[0]);
+    }
   }
 
   if (search) {

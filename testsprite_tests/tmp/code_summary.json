@@ -1,0 +1,50 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 14",
+    "React",
+    "TailwindCSS",
+    "Node.js",
+    "Express",
+    "SQLite",
+    "dnd-kit",
+    "jsPDF"
+  ],
+  "features": [
+    {
+      "name": "Create Page Builder",
+      "description": "Two-pane builder with filters, API fetch, drag-and-drop to compose a question paper, reorder and export to PDF.",
+      "files": ["app/create/page.tsx"]
+    },
+    {
+      "name": "Backend API and Seeding",
+      "description": "Express + SQLite server that seeds sample questions and exposes /api/questions and /api/filter-options endpoints.",
+      "files": ["backend/server.js", "backend/package.json"]
+    },
+    {
+      "name": "UI Components",
+      "description": "Shared UI components (Select, Card, Button, Checkbox, etc.) used across the app.",
+      "files": ["components/ui/*"]
+    },
+    {
+      "name": "PDF Generation",
+      "description": "Utility to generate exam PDFs (legacy util). The current create page uses inline jsPDF generation.",
+      "files": ["lib/pdf-generator.ts"]
+    },
+    {
+      "name": "Site Shell",
+      "description": "Main layout, header, footer and hero section with CTA redirecting to /start -> /create.",
+      "files": ["app/page.tsx", "components/header.tsx", "components/footer.tsx", "components/hero-section.tsx", "next.config.mjs"]
+    }
+  ]
+}
+{
+  "cells": [],
+  "metadata": {
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}

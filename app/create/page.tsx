@@ -136,14 +136,14 @@ export default function CreatePage() {
   }
 
   return (
-    <main className="container mx-auto p-4 sm:p-6 max-w-7xl">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <main className="container mx-auto p-6 sm:p-8 max-w-7xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Question Set */}
-        <Card className="bg-[#1e1e2f] border-border/40 shadow-lg rounded-xl">
-          <CardContent className="p-4 sm:p-6 space-y-4">
-            <h2 className="text-xl font-bold flex items-center gap-2"><BookOpen className="w-5 h-5"/> Question Set</h2>
+        <Card className="bg-[#1b1b2d] border border-white/10 shadow-xl rounded-2xl">
+          <CardContent className="p-5 sm:p-7 space-y-5">
+            <h2 className="text-2xl font-bold flex items-center gap-2"><BookOpen className="w-6 h-6"/> Question Set</h2>
             {/* Filters */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-muted-foreground">Class</label>
                 <Select value={filters.class || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, class: v }) }}>
@@ -160,7 +160,7 @@ export default function CreatePage() {
               </div>
               <div className="col-span-2">
                 <label className="text-xs text-muted-foreground">Topics</label>
-                <div className="flex flex-wrap gap-2 p-2 border rounded-lg">
+                <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-black/10">
                   {(options.topics || []).map(t => (
                     <label key={t} className="flex items-center gap-2 text-sm">
                       <Checkbox checked={filters.topics.includes(t)} onCheckedChange={(ck) => {
@@ -174,7 +174,7 @@ export default function CreatePage() {
               </div>
               <div className="col-span-2">
                 <label className="text-xs text-muted-foreground">Type</label>
-                <div className="flex flex-wrap gap-2 p-2 border rounded-lg">
+                <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-black/10">
                   {(options.types || []).map(tp => (
                     <label key={tp} className="flex items-center gap-2 text-sm">
                       <Checkbox checked={filters.types.includes(tp)} onCheckedChange={(ck) => {
@@ -186,8 +186,9 @@ export default function CreatePage() {
                   ))}
                 </div>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-2 flex items-center gap-3">
                 <Input placeholder="Search questions..." value={filters.search || ""} onChange={(e) => { setPage(1); setFilters({ ...filters, search: e.target.value }) }}/>
+                <Button variant="ghost" onClick={() => { setFilters({ topics: [], types: [] }); setPage(1) }}>Clear</Button>
               </div>
             </div>
 
@@ -212,11 +213,11 @@ export default function CreatePage() {
         </Card>
 
         {/* Right: Paper */}
-        <Card className="bg-[#1e1e2f] border-border/40 shadow-lg rounded-xl">
-          <CardContent className="p-4 sm:p-6 space-y-4">
+        <Card className="bg-[#1b1b2d] border border-white/10 shadow-xl rounded-2xl">
+          <CardContent className="p-5 sm:p-7 space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Main Question Paper</h2>
-              <Button size="sm" onClick={exportPDF}><Download className="w-4 h-4 mr-2"/>Export to PDF</Button>
+              <h2 className="text-2xl font-bold">Main Question Paper</h2>
+              <Button size="sm" className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600" onClick={exportPDF}><Download className="w-4 h-4 mr-2"/>Export to PDF</Button>
             </div>
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>

@@ -347,7 +347,15 @@ db.serialize(() => {
       question_type: 'multiple_choice',
       options: JSON.stringify({ A: 'Mesopotamia', B: 'Silicon Valley', C: 'NASA', D: 'UNICEF' }),
       correct_option_id: 'A'
-    }
+    },
+    { question_id: 'q27', question_text: 'Simplify: 15 - 7 + 4', question_answer: 'A', default_marks: 1, class: '6th Grade', topic: 'Arithmetic', subject: 'Mathematics', question_type: 'multiple_choice', options: JSON.stringify({ A: '12', B: '6', C: '8', D: '4' }), correct_option_id: 'A' },
+    { question_id: 'q28', question_text: 'The process by which plants lose water vapor is called?', question_answer: 'A', default_marks: 1, class: '7th Grade', topic: 'Biology', subject: 'Science', question_type: 'multiple_choice', options: JSON.stringify({ A: 'Transpiration', B: 'Respiration', C: 'Germination', D: 'Fermentation' }), correct_option_id: 'A' },
+    { question_id: 'q29', question_text: 'Who is known as the Father of Computers?', question_answer: 'A', default_marks: 1, class: '8th Grade', topic: 'History of Computers', subject: 'Computer', question_type: 'multiple_choice', options: JSON.stringify({ A: 'Charles Babbage', B: 'Alan Turing', C: 'Bill Gates', D: 'Tim Berners-Lee' }), correct_option_id: 'A' },
+    { question_id: 'q30', question_text: 'True or False: Water boils at 100°C at sea level.', question_answer: 'True', default_marks: 1, class: '6th Grade', topic: 'Physics', subject: 'Science', question_type: 'true_false', options: null, correct_option_id: null },
+    { question_id: 'q31', question_text: 'Find the perimeter of a triangle with sides 3, 4, and 5.', question_answer: 'A', default_marks: 2, class: '7th Grade', topic: 'Mensuration', subject: 'Mathematics', question_type: 'multiple_choice', options: JSON.stringify({ A: '12', B: '9', C: '10', D: '14' }), correct_option_id: 'A' },
+    { question_id: 'q32', question_text: 'Which organ pumps blood throughout the human body?', question_answer: 'A', default_marks: 1, class: '6th Grade', topic: 'Biology', subject: 'Science', question_type: 'multiple_choice', options: JSON.stringify({ A: 'Heart', B: 'Lungs', C: 'Brain', D: 'Liver' }), correct_option_id: 'A' },
+    { question_id: 'q33', question_text: 'Short answer: Define ecosystem.', question_answer: '', default_marks: 2, class: '8th Grade', topic: 'Ecology', subject: 'Science', question_type: 'short_answer', options: null, correct_option_id: null },
+    { question_id: 'q34', question_text: 'Which language is used to structure web pages?', question_answer: 'A', default_marks: 1, class: '8th Grade', topic: 'Web', subject: 'Computer', question_type: 'multiple_choice', options: JSON.stringify({ A: 'HTML', B: 'CSS', C: 'JavaScript', D: 'Python' }), correct_option_id: 'A' }
   ];
 
   // Insert sample questions

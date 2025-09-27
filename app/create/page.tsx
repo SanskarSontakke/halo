@@ -493,7 +493,7 @@ export default function CreatePage() {
                   <div className="flex-shrink-0">
                     <label className="text-xs text-gray-300">Class</label>
                     <Select value={filters.class || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, class: v === "All" ? undefined : v }) }}>
-                      <SelectTrigger className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"><SelectValue placeholder="All"/></SelectTrigger>
+                      <SelectTrigger className="h-8 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-28"><SelectValue placeholder="All"/></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="All">All</SelectItem>
                         {availableClassesForSubject.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -503,7 +503,7 @@ export default function CreatePage() {
                   <div className="flex-shrink-0">
                     <label className="text-xs text-gray-300">Subject</label>
                     <Select value={filters.subject || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, subject: v === "All" ? undefined : v }) }}>
-                      <SelectTrigger className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"><SelectValue placeholder="All"/></SelectTrigger>
+                      <SelectTrigger className="h-8 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-28"><SelectValue placeholder="All"/></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="All">All</SelectItem>
                         {availableSubjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
@@ -512,10 +512,11 @@ export default function CreatePage() {
                   </div>
                   <div className="flex-shrink-0">
                     <label className="text-xs text-gray-300">Search</label>
-                    <Input placeholder="Search questions..." value={filters.search || ""} onChange={(e) => { setPage(1); setFilters({ ...filters, search: e.target.value }) }} className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"/>
+                    <Input placeholder="Search questions..." value={filters.search || ""} onChange={(e) => { setPage(1); setFilters({ ...filters, search: e.target.value }) }} className="h-8 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-28"/>
                   </div>
                   <div className="flex-shrink-0">
-                    <Button variant="ghost" onClick={() => { setFilters({ topics: [], types: [] }); setPage(1) }} className="h-7 px-2 text-xs hover:bg-gray-800">Clear</Button>
+                    <label className="text-xs text-gray-300 opacity-0">Clear</label>
+                    <Button variant="ghost" onClick={() => { setFilters({ topics: [], types: [] }); setPage(1) }} className="h-8 px-3 text-xs hover:bg-gray-800 w-28">Clear</Button>
                   </div>
                 </div>
                 

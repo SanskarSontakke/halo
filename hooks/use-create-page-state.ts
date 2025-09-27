@@ -72,36 +72,36 @@ export const useCreatePageState = () => {
   }, [details, mounted])
 
   // Fetch questions from API
-  const fetchQuestions = async () => {
-    try {
-      const response = await fetch('/api/questions')
-      const data = await response.json()
-      
-      if (data.questions) {
-        // Normalize the data to match our Question type
-        const normalized: Question[] = data.questions.map((q: any) => ({
-          question_id: q.question_id || '',
-          question_text: q.question_text || '',
-          default_marks: q.default_marks || 1,
-          class: q.class || null,
-          subject: q.subject || null,
-          topic: q.topic || null,
-          question_type: q.question_type || '',
-          options: q.options || null,
-          left_items: q.left_items || null,
-          right_items: q.right_items || null,
-          blanks: q.blanks || null,
-          question_answer: q.question_answer || null,
-          correct_option_id: q.correct_option_id || null,
-        }))
-        setAllQuestions(normalized)
-      }
-    } catch (error) {
-      console.error('Error fetching questions:', error)
-    }
-  }
-
   useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await fetch('/api/questions')
+        const data = await response.json()
+        
+        if (data.questions) {
+          // Normalize the data to match our Question type
+          const normalized: Question[] = data.questions.map((q: any) => ({
+            question_id: q.question_id || '',
+            question_text: q.question_text || '',
+            default_marks: q.default_marks || 1,
+            class: q.class || null,
+            subject: q.subject || null,
+            topic: q.topic || null,
+            question_type: q.question_type || '',
+            options: q.options || null,
+            left_items: q.left_items || null,
+            right_items: q.right_items || null,
+            blanks: q.blanks || null,
+            question_answer: q.question_answer || null,
+            correct_option_id: q.correct_option_id || null,
+          }))
+          setAllQuestions(normalized)
+        }
+      } catch (error) {
+        console.error('Error fetching questions:', error)
+      }
+    }
+
     fetchQuestions()
   }, [])
 
@@ -199,7 +199,6 @@ export const useCreatePageState = () => {
     handleEditQuestion,
     handleUpdateQuestion,
     addQuestionToPaper,
-    addSectionToPaper,
-    fetchQuestions
+    addSectionToPaper
   }
 }

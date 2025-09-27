@@ -69,16 +69,6 @@ export default function QuestionSetPanel({
             <div className="text-center text-gray-400 text-sm">
               <div className="mb-2">Select Class and Subject to view questions</div>
               <div className="text-xs text-gray-500">Use the filters above to get started</div>
-              {allQuestionsCount === 0 && (
-                <div className="mt-4">
-                  <Button 
-                    onClick={() => fetch('/api/init-db', { method: 'POST' }).then(() => window.location.reload())}
-                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 px-3 text-xs"
-                  >
-                    Initialize Database
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         )}

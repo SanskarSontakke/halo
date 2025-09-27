@@ -4,40 +4,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated theme to match futuristic Valorant-inspired design */
-  --background: oklch(0.08 0.02 264); /* Deep dark blue-black */
-  --foreground: oklch(0.95 0.01 264); /* Bright white with slight blue tint */
-  --card: oklch(0.12 0.02 264); /* Dark card background */
-  --card-foreground: oklch(0.95 0.01 264);
-  --popover: oklch(0.12 0.02 264);
-  --popover-foreground: oklch(0.95 0.01 264);
-  --primary: oklch(0.65 0.25 285); /* Vibrant purple */
-  --primary-foreground: oklch(0.98 0.01 264);
-  --secondary: oklch(0.15 0.02 264); /* Darker secondary */
-  --secondary-foreground: oklch(0.95 0.01 264);
-  --muted: oklch(0.18 0.02 264);
-  --muted-foreground: oklch(0.65 0.05 264);
-  --accent: oklch(0.7 0.15 195); /* Cyan accent */
-  --accent-foreground: oklch(0.08 0.02 264);
-  --destructive: oklch(0.65 0.25 25); /* Orange-red */
-  --destructive-foreground: oklch(0.98 0.01 264);
-  --border: oklch(0.25 0.02 264);
-  --input: oklch(0.25 0.02 264);
-  --ring: oklch(0.65 0.25 285);
-  --chart-1: oklch(0.65 0.25 285); /* Purple */
-  --chart-2: oklch(0.7 0.15 195); /* Cyan */
-  --chart-3: oklch(0.75 0.2 35); /* Orange */
-  --chart-4: oklch(0.7 0.2 140); /* Green */
-  --chart-5: oklch(0.75 0.2 320); /* Pink */
-  --radius: 0.625rem;
-  --sidebar: oklch(0.12 0.02 264);
-  --sidebar-foreground: oklch(0.95 0.01 264);
-  --sidebar-primary: oklch(0.65 0.25 285);
-  --sidebar-primary-foreground: oklch(0.98 0.01 264);
-  --sidebar-accent: oklch(0.18 0.02 264);
-  --sidebar-accent-foreground: oklch(0.95 0.01 264);
-  --sidebar-border: oklch(0.25 0.02 264);
-  --sidebar-ring: oklch(0.65 0.25 285);
+  /* High-contrast dark theme for professional exam generator */
+  --background: #000000; /* Solid black background */
+  --foreground: #ffffff; /* Bright white text for maximum readability */
+  --card: #111111; /* Dark card background */
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #3b82f6; /* Bright blue for primary actions */
+  --primary-foreground: #ffffff;
+  --secondary: #1f2937; /* Dark gray for secondary elements */
+  --secondary-foreground: #ffffff;
+  --muted: #1f2937; /* Dark gray for muted elements */
+  --muted-foreground: #9ca3af; /* Light gray for muted text */
+  --accent: #3b82f6; /* Bright blue for accents */
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444; /* Bright red for destructive actions */
+  --destructive-foreground: #ffffff;
+  --border: #374151; /* Dark gray borders */
+  --input: #111111; /* Dark input backgrounds */
+  --ring: #3b82f6; /* Blue focus rings */
+  --chart-1: #3b82f6; /* Blue */
+  --chart-2: #8b5cf6; /* Purple */
+  --chart-3: #f59e0b; /* Amber */
+  --chart-4: #10b981; /* Emerald */
+  --chart-5: #ef4444; /* Red */
+  --radius: 0.5rem;
+  --sidebar: #111111;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #374151;
+  --sidebar-ring: #3b82f6;
 
   /* Added custom gradient variables for 3D effects */
   --gradient-primary: linear-gradient(135deg, oklch(0.65 0.25 285), oklch(0.7 0.15 195));
@@ -47,39 +47,39 @@
 }
 
 .dark {
-  /* Dark mode uses same values as root since we want dark theme by default */
-  --background: oklch(0.08 0.02 264);
-  --foreground: oklch(0.95 0.01 264);
-  --card: oklch(0.12 0.02 264);
-  --card-foreground: oklch(0.95 0.01 264);
-  --popover: oklch(0.12 0.02 264);
-  --popover-foreground: oklch(0.95 0.01 264);
-  --primary: oklch(0.65 0.25 285);
-  --primary-foreground: oklch(0.98 0.01 264);
-  --secondary: oklch(0.15 0.02 264);
-  --secondary-foreground: oklch(0.95 0.01 264);
-  --muted: oklch(0.18 0.02 264);
-  --muted-foreground: oklch(0.65 0.05 264);
-  --accent: oklch(0.7 0.15 195);
-  --accent-foreground: oklch(0.08 0.02 264);
-  --destructive: oklch(0.65 0.25 25);
-  --destructive-foreground: oklch(0.98 0.01 264);
-  --border: oklch(0.25 0.02 264);
-  --input: oklch(0.25 0.02 264);
-  --ring: oklch(0.65 0.25 285);
-  --chart-1: oklch(0.65 0.25 285);
-  --chart-2: oklch(0.7 0.15 195);
-  --chart-3: oklch(0.75 0.2 35);
-  --chart-4: oklch(0.7 0.2 140);
-  --chart-5: oklch(0.75 0.2 320);
-  --sidebar: oklch(0.12 0.02 264);
-  --sidebar-foreground: oklch(0.95 0.01 264);
-  --sidebar-primary: oklch(0.65 0.25 285);
-  --sidebar-primary-foreground: oklch(0.98 0.01 264);
-  --sidebar-accent: oklch(0.18 0.02 264);
-  --sidebar-accent-foreground: oklch(0.95 0.01 264);
-  --sidebar-border: oklch(0.25 0.02 264);
-  --sidebar-ring: oklch(0.65 0.25 285);
+  /* High-contrast dark theme */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1f2937;
+  --secondary-foreground: #ffffff;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #374151;
+  --input: #111111;
+  --ring: #3b82f6;
+  --chart-1: #3b82f6;
+  --chart-2: #8b5cf6;
+  --chart-3: #f59e0b;
+  --chart-4: #10b981;
+  --chart-5: #ef4444;
+  --sidebar: #111111;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #374151;
+  --sidebar-ring: #3b82f6;
 }
 
 @theme inline {

@@ -149,6 +149,36 @@ export default function CreatePage() {
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / 10)), [total])
 
+  // Compute filtered topics and types based on selected class and subject
+  const filteredTopics = useMemo(() => {
+    if (!filters.class || !filters.subject) return []
+    return [...new Set(
+      allQuestions
+        .filter(q => q.class === filters.class && q.subject === filters.subject && q.topic)
+        .map(q => q.topic!)
+        .filter(Boolean)
+    )].sort()
+  }, [allQuestions, filters.class, filters.subject])
+
+  const filteredTypes = useMemo(() => {
+    if (!filters.class || !filters.subject) return []
+    return [...new Set(
+      allQuestions
+        .filter(q => q.class === filters.class && q.subject === filters.subject && q.question_type)
+        .map(q => q.question_type)
+        .filter(Boolean)
+    )].sort()
+  }, [allQuestions, filters.class, filters.subject])
+
+  // Clear topics and types filters when class or subject changes
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      topics: [],
+      types: []
+    }))
+  }, [filters.class, filters.subject])
+
   const [activeId, setActiveId] = useState<string | null>(null)
   const sensors = useSensors(useSensor(PointerSensor))
 
@@ -422,15 +452,19 @@ export default function CreatePage() {
                     <label className="text-xs text-gray-300">Topics</label>
                     <div className="flex flex-wrap gap-1 p-1 border border-gray-600 rounded bg-gray-800">
                       {(filters.class && filters.subject) ? (
-                        (options.topics || []).map(t => (
-                          <label key={t} className="flex items-center gap-1 text-xs text-gray-300">
-                            <Checkbox checked={filters.topics.includes(t)} onCheckedChange={(ck) => {
-                              setPage(1)
-                              setFilters(prev => ({ ...prev, topics: ck ? [...prev.topics, t] : prev.topics.filter(x => x !== t) }))
-                            }}/>
-                            {t}
-                          </label>
-                        ))
+                        filteredTopics.length > 0 ? (
+                          filteredTopics.map(t => (
+                            <label key={t} className="flex items-center gap-1 text-xs text-gray-300">
+                              <Checkbox checked={filters.topics.includes(t)} onCheckedChange={(ck) => {
+                                setPage(1)
+                                setFilters(prev => ({ ...prev, topics: ck ? [...prev.topics, t] : prev.topics.filter(x => x !== t) }))
+                              }}/>
+                              {t}
+                            </label>
+                          ))
+                        ) : (
+                          <div className="text-xs text-gray-500 italic">No topics available for this class and subject</div>
+                        )
                       ) : (
                         <div className="text-xs text-gray-500 italic">First select class and subject to show topics</div>
                       )}
@@ -440,15 +474,19 @@ export default function CreatePage() {
                     <label className="text-xs text-gray-300">Type</label>
                     <div className="flex flex-wrap gap-1 p-1 border border-gray-600 rounded bg-gray-800">
                       {(filters.class && filters.subject) ? (
-                        (options.types || []).map(tp => (
-                          <label key={tp} className="flex items-center gap-1 text-xs text-gray-300">
-                            <Checkbox checked={filters.types.includes(tp)} onCheckedChange={(ck) => {
-                              setPage(1)
-                              setFilters(prev => ({ ...prev, types: ck ? [...prev.types, tp] : prev.types.filter(x => x !== tp) }))
-                            }}/>
-                            {tp}
-                          </label>
-                        ))
+                        filteredTypes.length > 0 ? (
+                          filteredTypes.map(tp => (
+                            <label key={tp} className="flex items-center gap-1 text-xs text-gray-300">
+                              <Checkbox checked={filters.types.includes(tp)} onCheckedChange={(ck) => {
+                                setPage(1)
+                                setFilters(prev => ({ ...prev, types: ck ? [...prev.types, tp] : prev.types.filter(x => x !== tp) }))
+                              }}/>
+                              {tp}
+                            </label>
+                          ))
+                        ) : (
+                          <div className="text-xs text-gray-500 italic">No question types available for this class and subject</div>
+                        )
                       ) : (
                         <div className="text-xs text-gray-500 italic">First select class and subject to show types</div>
                       )}

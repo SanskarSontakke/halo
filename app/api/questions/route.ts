@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 export async function GET(request: NextRequest) {
   try {
     // Fetch all questions from Supabase
-    const { data: questions, error } = await supabase
+    const { data: questions, error } = await supabase()
       .from('questions')
       .select('*')
       .order('created_at', { ascending: false })

@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { HaloLogo3D } from "@/components/halo-logo-3d"
 import Link from "next/link"
 
 export function HeroSection() {
@@ -12,7 +11,9 @@ export function HeroSection() {
 
       <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
         <div className="flex justify-center mb-8">
-          <HaloLogo3D />
+          <div className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+            HALO
+          </div>
         </div>
 
         <div className="space-y-4">

@@ -1,192 +1,209 @@
 # Project Halo - Exam Generator
 
-An AI-powered exam paper generation tool for educators built with Next.js, TypeScript, and Tailwind CSS.
+A modern, AI-powered exam generator built with Next.js, TypeScript, and Supabase. Create professional exam papers with drag-and-drop functionality and export to PDF.
 
 ## Features
 
-- 🎯 **Question Bank Management**: Browse and filter questions by subject, topic, class level, and type
-- 📝 **Exam Paper Creation**: Create custom exam papers with multiple sections
-- 🎨 **Modern UI**: Beautiful, responsive interface built with Radix UI components
-- 📊 **Question Types**: Support for multiple choice, short answer, essay, and true/false questions
-- 🔍 **Advanced Filtering**: Filter questions by various criteria
-- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
-- 🎨 **Dark/Light Theme**: Built-in theme switching support
+- 🎯 **Smart Question Management**: Filter and organize questions by class, subject, topic, and type
+- 📝 **Drag & Drop Interface**: Intuitive question paper building with reorderable sections
+- 📄 **PDF Export**: Professional exam paper generation with custom formatting
+- 🎨 **Modern UI**: High-contrast dark theme with responsive design
+- 🔧 **Question Editing**: In-place editing of questions with support for multiple question types
+- 📊 **Real-time Preview**: Live preview of your exam paper as you build it
+- 🗄️ **Supabase Integration**: Real-time database with built-in authentication and API
 
 ## Tech Stack
 
 - **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Radix UI components
-- **Database**: Local JSON-based storage (no external dependencies)
-- **Icons**: Lucide React
-- **Forms**: React Hook Form with Zod validation
+- **Styling**: Tailwind CSS, Radix UI Components
+- **Database**: Supabase (PostgreSQL)
 - **PDF Generation**: jsPDF
+- **Drag & Drop**: @dnd-kit
+- **Deployment**: Vercel
 
-## Getting Started
+## Deployment on Vercel with Supabase
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- npm or yarn package manager
+1. **Supabase Account**: Sign up at [Supabase](https://supabase.com)
+2. **Vercel Account**: Sign up at [Vercel](https://vercel.com)
+3. **GitHub Repository**: Push your code to GitHub
 
-### Installation
+### Step 1: Set up Supabase
 
-1. **Clone the repository**
+1. **Create a new project**:
+   - Go to [Supabase Dashboard](https://supabase.com/dashboard)
+   - Click "New Project"
+   - Choose your organization and enter project details
+   - Wait for the project to be created (usually takes 1-2 minutes)
+
+2. **Get your credentials**:
+   - Go to Settings > API
+   - Copy your Project URL (looks like: `https://your-project-ref.supabase.co`)
+   - Copy your anon/public key (starts with `eyJ...`)
+
+3. **Set up the database schema**:
+   - Go to the SQL Editor in your Supabase dashboard
+   - Copy the contents of `supabase/schema.sql`
+   - Paste it into the SQL Editor and click "Run"
+   - This will create the questions table and insert sample data
+
+### Step 2: Deploy to Vercel
+
+1. **Import Project**:
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "New Project"
+   - Import your GitHub repository
+
+2. **Configure Environment Variables**:
+   - In your Vercel project settings, go to "Environment Variables"
+   - Add the following variables:
+     ```
+     NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+     ```
+
+3. **Deploy**:
+   - Click "Deploy" and wait for the build to complete
+   - Your app will be available at `https://your-project-name.vercel.app`
+
+### Step 3: Initialize Database (Optional)
+
+If you want to add more sample questions, visit: `https://your-project-name.vercel.app/api/init-db`
+
+This will insert additional sample questions into your Supabase database.
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18+ 
+- Supabase account
+
+### Setup
+
+1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd halo
+   git clone <your-repo-url>
+   cd project-halo
    ```
 
-2. **Install dependencies**
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. **Start the development server**
+3. **Set up environment variables**:
+   ```bash
+   cp env.example .env.local
+   ```
+   
+   Edit `.env.local` with your Supabase credentials:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+
+4. **Set up the database**:
+   - Go to your Supabase project's SQL Editor
+   - Run the `supabase/schema.sql` file to create tables and sample data
+
+5. **Run the development server**:
    ```bash
    npm run dev
    ```
 
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+6. **Initialize additional data (optional)**:
+   Visit `http://localhost:3000/api/init-db` to add more sample questions
+
+## Supabase Schema
+
+The database uses a single `questions` table with the following structure:
+
+```sql
+CREATE TABLE questions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    question_id TEXT UNIQUE NOT NULL,
+    question_text TEXT NOT NULL,
+    question_answer TEXT,
+    default_marks INTEGER DEFAULT 1,
+    class TEXT,
+    topic TEXT,
+    subject TEXT,
+    question_type TEXT NOT NULL CHECK (question_type IN ('multiple_choice', 'fill_in_blanks', 'match_pairs', 'short_answer')),
+    options JSONB,
+    correct_option_id TEXT,
+    left_items TEXT[],
+    right_items TEXT[],
+    blanks TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+### Question Types Supported:
+
+1. **Multiple Choice**: Questions with options A, B, C, D
+2. **Fill in Blanks**: Questions with blank spaces to fill
+3. **Match Pairs**: Questions with left and right items to match
+4. **Short Answer**: Open-ended text questions
 
 ## Project Structure
 
 ```
-halo/
-├── app/                    # Next.js app directory
-│   ├── create/            # Exam creation page
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # React components
-│   ├── ui/               # Reusable UI components
-│   ├── exam-creator.tsx  # Main exam creation component
-│   ├── exam-paper.tsx    # Exam paper display component
-│   ├── question-bank.tsx # Question bank component
-│   └── ...
-├── lib/                  # Utility functions and configurations
-│   ├── database.ts       # Database interface
-│   ├── local-database.ts # Local database implementation
-│   ├── utils.ts          # Utility functions
-│   └── pdf-generator.ts  # PDF generation utilities
-├── hooks/                # Custom React hooks
-├── public/               # Static assets
-└── styles/               # Additional styles
+├── app/
+│   ├── api/                 # API routes
+│   │   ├── questions/       # Questions API
+│   │   └── init-db/         # Database initialization
+│   ├── create/              # Main exam creation page
+│   ├── globals.css          # Global styles
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
+├── components/
+│   ├── create/              # Exam creation components
+│   └── ui/                  # Reusable UI components
+├── lib/
+│   ├── supabase.ts          # Supabase client configuration
+│   └── utils.ts             # Utility functions
+├── supabase/
+│   └── schema.sql           # Database schema
+├── public/                  # Static assets
+└── types/                   # TypeScript type definitions
 ```
 
-## Available Scripts
+## API Endpoints
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- `GET /api/questions` - Fetch all questions and filter options
+- `POST /api/init-db` - Initialize database with sample data
 
-## Database
+## Environment Variables
 
-The application uses a local JSON-based database system that stores data in memory during the session. This approach:
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `NEXT_PUBLIC_APP_URL` | App URL for production | No |
 
-- ✅ **No external dependencies** - No need for PostgreSQL, MongoDB, or other databases
-- ✅ **Easy setup** - Works out of the box without configuration
-- ✅ **Fast development** - Perfect for prototyping and local development
-- ✅ **Sample data included** - Comes with pre-loaded sample questions
+## Supabase Features Used
 
-### Sample Data
-
-The application includes sample questions covering:
-- **Mathematics**: Algebra, Geometry
-- **Science**: Chemistry, Biology, Physics
-- **English**: Literature, Grammar
-- **History**: World Wars, Industrial Revolution
-
-## Features Overview
-
-### Question Bank
-- Browse questions by subject, topic, class level, and type
-- Search functionality
-- Pagination support
-- Filter options
-
-### Exam Creation
-- Create custom exam papers
-- Add multiple sections
-- Drag and drop question organization
-- Mark allocation per question
-- PDF export functionality
-
-### Question Types
-- **Multiple Choice**: Select from 4 options
-- **Short Answer**: Text input responses
-- **Essay**: Long-form written responses
-- **True/False**: Binary choice questions
-
-## Development
-
-### Adding New Question Types
-
-1. Update the `Question` interface in `components/exam-creator.tsx`
-2. Add the new type to the question type filter options
-3. Update the question display components to handle the new type
-
-### Customizing the UI
-
-The application uses Tailwind CSS for styling and Radix UI for accessible components. You can:
-
-- Modify colors in `tailwind.config.js`
-- Add new components in `components/ui/`
-- Update the theme in `components/theme-provider.tsx`
-
-### Database Schema
-
-The local database includes the following entities:
-
-- **Questions**: Store individual exam questions
-- **Exam Papers**: Store created exam papers
-- **Sections**: Organize questions within exam papers
-- **Exam Paper Questions**: Junction table linking questions to exam papers
-
-## Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy with zero configuration
-
-### Other Platforms
-
-The application can be deployed to any platform that supports Next.js:
-- Netlify
-- Railway
-- DigitalOcean App Platform
-- AWS Amplify
+- **PostgreSQL Database**: Reliable, scalable database
+- **Row Level Security**: Built-in security policies
+- **Real-time Subscriptions**: Live data updates
+- **Auto-generated APIs**: REST and GraphQL APIs
+- **Built-in Authentication**: User management (ready for future use)
+- **Dashboard**: Easy database management
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see LICENSE file for details
 
 ## Support
 
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/your-repo/halo/issues) page
-2. Create a new issue with detailed information
-3. Include steps to reproduce any bugs
-
-## Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- UI components from [Radix UI](https://www.radix-ui.com/)
-- Icons from [Lucide](https://lucide.dev/)
-- Styling with [Tailwind CSS](https://tailwindcss.com/)
-
----
-
-**Project Halo** - Making exam creation simple and efficient for educators worldwide.
+For issues and questions, please create an issue in the GitHub repository.

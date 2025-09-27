@@ -149,6 +149,56 @@ export default function CreatePage() {
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / 10)), [total])
 
+  // Compute available classes and subjects based on existing combinations
+  const availableClasses = useMemo(() => {
+    return [...new Set(
+      allQuestions
+        .filter(q => q.class)
+        .map(q => q.class!)
+        .filter(Boolean)
+    )].sort()
+  }, [allQuestions])
+
+  const availableSubjects = useMemo(() => {
+    if (!filters.class) {
+      // If no class selected, show all subjects that have questions
+      return [...new Set(
+        allQuestions
+          .filter(q => q.subject)
+          .map(q => q.subject!)
+          .filter(Boolean)
+      )].sort()
+    } else {
+      // If class selected, show only subjects that have questions for that class
+      return [...new Set(
+        allQuestions
+          .filter(q => q.class === filters.class && q.subject)
+          .map(q => q.subject!)
+          .filter(Boolean)
+      )].sort()
+    }
+  }, [allQuestions, filters.class])
+
+  const availableClassesForSubject = useMemo(() => {
+    if (!filters.subject) {
+      // If no subject selected, show all classes that have questions
+      return [...new Set(
+        allQuestions
+          .filter(q => q.class)
+          .map(q => q.class!)
+          .filter(Boolean)
+      )].sort()
+    } else {
+      // If subject selected, show only classes that have questions for that subject
+      return [...new Set(
+        allQuestions
+          .filter(q => q.subject === filters.subject && q.class)
+          .map(q => q.class!)
+          .filter(Boolean)
+      )].sort()
+    }
+  }, [allQuestions, filters.subject])
+
   // Compute filtered topics and types based on selected class and subject
   const filteredTopics = useMemo(() => {
     if (!filters.class || !filters.subject) return []
@@ -178,6 +228,29 @@ export default function CreatePage() {
       types: []
     }))
   }, [filters.class, filters.subject])
+
+  // Clear invalid class/subject selections when they're no longer available
+  useEffect(() => {
+    setFilters(prev => {
+      let newFilters = { ...prev }
+      
+      // If current class is not available for current subject, clear it
+      if (prev.class && !availableClassesForSubject.includes(prev.class)) {
+        newFilters.class = undefined
+        newFilters.topics = []
+        newFilters.types = []
+      }
+      
+      // If current subject is not available for current class, clear it
+      if (prev.subject && !availableSubjects.includes(prev.subject)) {
+        newFilters.subject = undefined
+        newFilters.topics = []
+        newFilters.types = []
+      }
+      
+      return newFilters
+    })
+  }, [availableClassesForSubject, availableSubjects])
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const sensors = useSensors(useSensor(PointerSensor))
@@ -423,7 +496,7 @@ export default function CreatePage() {
                       <SelectTrigger className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"><SelectValue placeholder="All"/></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="All">All</SelectItem>
-                        {(options.classes || []).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        {availableClassesForSubject.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -433,7 +506,7 @@ export default function CreatePage() {
                       <SelectTrigger className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"><SelectValue placeholder="All"/></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="All">All</SelectItem>
-                        {(options.subjects || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        {availableSubjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>

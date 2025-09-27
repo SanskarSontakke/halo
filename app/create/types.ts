@@ -2,13 +2,16 @@ export type Question = {
   question_id: string
   question_text: string
   default_marks: number
-  class: string
-  subject: string
-  topic: string
+  class: string | null
+  subject: string | null
+  topic: string | null
   question_type: string
-  options?: Record<string, string>
-  left_items?: string[]
-  right_items?: string[]
+  options?: Record<string, string> | null
+  left_items?: string[] | null
+  right_items?: string[] | null
+  blanks?: string | null
+  question_answer?: string | null
+  correct_option_id?: string | null
 }
 
 export type PaperItem =

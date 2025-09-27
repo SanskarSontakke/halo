@@ -20,9 +20,9 @@ export default function QuestionRow({ q, onAdd, isAdded }: { q: Question; onAdd:
           </div>
         ) : (
           <div className="flex gap-1 flex-wrap text-xs">
-            <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.subject}</Badge>
-            <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.topic}</Badge>
-            <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.class}</Badge>
+            {q.subject && <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.subject}</Badge>}
+            {q.topic && <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.topic}</Badge>}
+            {q.class && <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.class}</Badge>}
             <Badge variant="outline" className="rounded border-gray-600 text-gray-300 text-xs px-1 py-0">{q.question_type}</Badge>
           </div>
         )}

@@ -36,7 +36,6 @@ export default function CreatePage() {
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
   const [isEditQuestionOpen, setIsEditQuestionOpen] = useState(false)
-  const [isInitializing, setIsInitializing] = useState(false)
   
 
   useEffect(() => { 
@@ -76,14 +75,25 @@ export default function CreatePage() {
         
         if (data.questions) {
           const normalized: Question[] = data.questions.map((q: any) => ({
-            ...q,
-            options: q.options || undefined,
-            left_items: q.left_items || undefined,
-            right_items: q.right_items || undefined,
+            question_id: q.question_id,
+            question_text: q.question_text,
+            default_marks: q.default_marks || 1,
+            class: q.class || null,
+            subject: q.subject || null,
+            topic: q.topic || null,
+            question_type: q.question_type,
+            options: q.options || null,
+            left_items: q.left_items || null,
+            right_items: q.right_items || null,
+            blanks: q.blanks || null,
+            question_answer: q.question_answer || null,
+            correct_option_id: q.correct_option_id || null,
           }))
           setAllQuestions(normalized)
           setOptions(data.options || { classes: [], subjects: [], topics: [], types: [] })
           console.log('Questions loaded:', normalized.length)
+          console.log('Sample question:', normalized[0])
+          console.log('Options loaded:', data.options)
         } else {
           console.error('No questions in response:', data)
         }
@@ -98,17 +108,28 @@ export default function CreatePage() {
   // Client-side filtering + pagination
   useEffect(() => {
     const matches = (q: Question) => {
+      // Filter by class
       if (filters.class && q.class !== filters.class) return false
+      
+      // Filter by subject
       if (filters.subject && q.subject !== filters.subject) return false
-      if (filters.topics.length && !filters.topics.includes(q.topic)) return false
-      if (filters.types.length && !filters.types.includes(q.question_type)) return false
+      
+      // Filter by topics (only if topics filter is applied)
+      if (filters.topics.length > 0 && q.topic && !filters.topics.includes(q.topic)) return false
+      
+      // Filter by types (only if types filter is applied)
+      if (filters.types.length > 0 && !filters.types.includes(q.question_type)) return false
+      
+      // Search filter
       if (filters.search && filters.search.trim()) {
         const s = filters.search.trim().toLowerCase()
-        const hay = `${q.question_text} ${q.subject} ${q.topic} ${q.class} ${q.question_type}`.toLowerCase()
+        const hay = `${q.question_text} ${q.subject || ''} ${q.topic || ''} ${q.class || ''} ${q.question_type}`.toLowerCase()
         if (!hay.includes(s)) return false
       }
+      
       return true
     }
+    
     const filtered = allQuestions.filter(matches)
     const pageSize = 10
     const totalCount = filtered.length
@@ -116,15 +137,15 @@ export default function CreatePage() {
     const end = start + pageSize
     setQuestions(filtered.slice(start, end))
     setTotal(totalCount)
+    
+    console.log('Filtering results:', {
+      allQuestions: allQuestions.length,
+      filtered: filtered.length,
+      filters,
+      sampleQuestion: allQuestions[0]
+    })
   }, [allQuestions, filters, page])
 
-  useEffect(() => {
-    const p = new URLSearchParams()
-    if (filters.class) p.append("class", filters.class)
-    if (filters.subject) p.append("subject", filters.subject)
-    if (filters.topics.length) p.append("topic", filters.topics.join(","))
-    fetch(`/api/filter-options?${p.toString()}`).then(r => r.json()).then(setOptions).catch(() => {})
-  }, [filters.class, filters.subject, filters.topics])
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / 10)), [total])
 
@@ -172,32 +193,6 @@ export default function CreatePage() {
     setIsEditQuestionOpen(false)
   }
 
-  const initializeDatabase = async () => {
-    setIsInitializing(true)
-    try {
-      const response = await fetch('/api/init-db', { method: 'POST' })
-      const data = await response.json()
-      console.log('Database initialized:', data)
-      
-      // Refresh questions after initialization
-      const questionsResponse = await fetch('/api/questions')
-      const questionsData = await questionsResponse.json()
-      if (questionsData.questions) {
-        const normalized: Question[] = questionsData.questions.map((q: any) => ({
-          ...q,
-          options: q.options || undefined,
-          left_items: q.left_items || undefined,
-          right_items: q.right_items || undefined,
-        }))
-        setAllQuestions(normalized)
-        setOptions(questionsData.options || { classes: [], subjects: [], topics: [], types: [] })
-      }
-    } catch (error) {
-      console.error('Error initializing database:', error)
-    } finally {
-      setIsInitializing(false)
-    }
-  }
 
   const exportPDF = () => {
     const pdf = new jsPDF()
@@ -394,16 +389,22 @@ export default function CreatePage() {
                 <div className="flex items-end gap-2 flex-wrap">
                   <div className="flex-shrink-0">
                     <label className="text-xs text-gray-300">Class</label>
-                    <Select value={filters.class || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, class: v }) }}>
+                    <Select value={filters.class || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, class: v === "All" ? undefined : v }) }}>
                       <SelectTrigger className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"><SelectValue placeholder="All"/></SelectTrigger>
-                      <SelectContent>{(options.classes || []).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                      <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {(options.classes || []).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
                     </Select>
                   </div>
                   <div className="flex-shrink-0">
                     <label className="text-xs text-gray-300">Subject</label>
-                    <Select value={filters.subject || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, subject: v }) }}>
+                    <Select value={filters.subject || ""} onValueChange={(v) => { setPage(1); setFilters({ ...filters, subject: v === "All" ? undefined : v }) }}>
                       <SelectTrigger className="h-7 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-24"><SelectValue placeholder="All"/></SelectTrigger>
-                      <SelectContent>{(options.subjects || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {(options.subjects || []).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      </SelectContent>
                     </Select>
                   </div>
                   <div className="flex-shrink-0">
@@ -499,7 +500,7 @@ export default function CreatePage() {
               {allQuestions.length === 0 && (
                 <div className="mt-4">
                   <div className="text-xs text-gray-500 mb-2">No questions in database yet</div>
-                  <div className="text-xs text-blue-400">Click "Add Sample Questions" to get started</div>
+                  <div className="text-xs text-blue-400">Questions will appear here once loaded</div>
                 </div>
               )}
             </div>
@@ -525,15 +526,6 @@ export default function CreatePage() {
             <div className="flex items-center justify-between gap-2 flex-shrink-0">
               <h2 className="text-lg font-bold text-white">Main Question Paper</h2>
               <div className="flex items-center gap-1">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={initializeDatabase} 
-                  disabled={isInitializing}
-                  className="h-7 px-2 text-xs border-gray-600 text-white hover:bg-gray-800"
-                >
-                  {isInitializing ? 'Loading...' : 'Add Sample Questions'}
-                </Button>
                 <Button size="sm" variant="outline" onClick={() => { setIsSectionOpen(true) }} className="h-7 px-2 text-xs border-gray-600 text-white hover:bg-gray-800">Add Section</Button>
                 <Button size="sm" className="rounded bg-blue-600 hover:bg-blue-700 text-white h-7 px-2 text-xs" onClick={exportPDF}><Download className="w-3 h-3 mr-1"/>Export PDF</Button>
               </div>

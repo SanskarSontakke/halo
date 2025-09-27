@@ -1,6 +1,10 @@
 -- Supabase Schema for Project Halo Exam Generator
 -- Run this SQL in your Supabase SQL Editor
 
+-- Drop the existing table if it exists (WARNING: This will delete all data)
+-- Uncomment the next line only if you want to start fresh
+-- DROP TABLE IF EXISTS questions CASCADE;
+
 -- Create the questions table
 CREATE TABLE IF NOT EXISTS questions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -21,6 +25,23 @@ CREATE TABLE IF NOT EXISTS questions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- If the table already exists with wrong column types, fix them
+-- This will only run if the column is not already TEXT type
+DO $$ 
+BEGIN
+    -- Check if question_id column exists and is not TEXT type
+    IF EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_name = 'questions' 
+        AND column_name = 'question_id' 
+        AND data_type != 'text'
+    ) THEN
+        -- Alter the column to TEXT type
+        ALTER TABLE questions ALTER COLUMN question_id TYPE TEXT;
+    END IF;
+END $$;
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_questions_class ON questions(class);
 CREATE INDEX IF NOT EXISTS idx_questions_subject ON questions(subject);
@@ -31,10 +52,16 @@ CREATE INDEX IF NOT EXISTS idx_questions_question_id ON questions(question_id);
 -- Enable Row Level Security (RLS)
 ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
 
--- Create a policy that allows all operations for authenticated users
+-- Drop existing policy if it exists
+DROP POLICY IF EXISTS "Allow all operations for all users" ON questions;
+
+-- Create a policy that allows all operations for all users
 -- For public access, you can use this policy:
 CREATE POLICY "Allow all operations for all users" ON questions
     FOR ALL USING (true);
+
+-- Clear existing data to avoid conflicts
+DELETE FROM questions;
 
 -- Insert sample questions
 INSERT INTO questions (
@@ -160,8 +187,7 @@ INSERT INTO questions (
     'match_pairs',
     NULL,
     NULL
-)
-ON CONFLICT (question_id) DO NOTHING;
+);
 
 -- Update match pairs questions with their items
 UPDATE questions 
@@ -196,6 +222,9 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS update_questions_updated_at ON questions;
 
 -- Create a trigger to automatically update the updated_at column
 CREATE TRIGGER update_questions_updated_at 

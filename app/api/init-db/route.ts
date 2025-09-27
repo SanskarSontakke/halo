@@ -1,11 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
+export async function POST(request: NextRequest) {
   try {
     // Sample questions data
     const sampleQuestions = [
@@ -30,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         topic: 'Chemistry',
         subject: 'Science',
         question_type: 'multiple_choice',
-        options: { A: 'H2O', B: 'CO2', C: 'NaCl', D: 'O2' },
+        options: { A: 'H2O', 'B': 'CO2', 'C': 'NaCl', 'D': 'O2' },
         correct_option_id: 'A',
       },
       {
@@ -46,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       {
         question_id: 'q4',
-        question_text: 'Match the pairs',
+        question_text: 'Match the chemical formulas with their names',
         question_answer: 'A-1, B-2, C-3, D-4',
         default_marks: 2,
         class: '7th Grade',
@@ -78,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       {
         question_id: 'q7',
-        question_text: 'Match the pairs',
+        question_text: 'Match the planets with their characteristics',
         question_answer: 'A-1, B-2, C-3, D-4, E-5',
         default_marks: 2,
         class: '7th Grade',
@@ -135,16 +131,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (error) {
       console.error('Supabase insert error:', error)
-      return res.status(500).json({ error: 'Failed to insert sample questions' })
+      return NextResponse.json({ error: 'Failed to insert sample questions' }, { status: 500 })
     }
 
-    res.status(200).json({ 
+    return NextResponse.json({ 
       message: 'Database initialized successfully with Supabase',
       questionsCount: sampleQuestions.length,
       data
     })
   } catch (error) {
     console.error('Database initialization error:', error)
-    res.status(500).json({ error: 'Database initialization failed' })
+    return NextResponse.json({ error: 'Database initialization failed' }, { status: 500 })
   }
 }

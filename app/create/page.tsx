@@ -36,6 +36,7 @@ export default function CreatePage() {
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
   const [isEditQuestionOpen, setIsEditQuestionOpen] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(false)
   
 
   useEffect(() => { 
@@ -66,18 +67,32 @@ export default function CreatePage() {
 
   // Fetch ALL questions once, then filter/paginate on client
   useEffect(() => {
-    const p = new URLSearchParams()
-    p.append("page", "1")
-    p.append("limit", "10000")
-    fetch(`/api/questions?${p.toString()}`).then(r => r.json()).then((d) => {
-      const normalized: Question[] = d.questions.map((q: any) => ({
-        ...q,
-        options: q.options || undefined,
-        left_items: q.left_items || undefined,
-        right_items: q.right_items || undefined,
-      }))
-      setAllQuestions(normalized)
-    }).catch(() => {})
+    const fetchQuestions = async () => {
+      try {
+        console.log('Fetching questions from API...')
+        const response = await fetch('/api/questions')
+        const data = await response.json()
+        console.log('API Response:', data)
+        
+        if (data.questions) {
+          const normalized: Question[] = data.questions.map((q: any) => ({
+            ...q,
+            options: q.options || undefined,
+            left_items: q.left_items || undefined,
+            right_items: q.right_items || undefined,
+          }))
+          setAllQuestions(normalized)
+          setOptions(data.options || { classes: [], subjects: [], topics: [], types: [] })
+          console.log('Questions loaded:', normalized.length)
+        } else {
+          console.error('No questions in response:', data)
+        }
+      } catch (error) {
+        console.error('Error fetching questions:', error)
+      }
+    }
+    
+    fetchQuestions()
   }, [])
 
   // Client-side filtering + pagination
@@ -155,6 +170,33 @@ export default function CreatePage() {
     // Don't update allQuestions or database - keep them separate
     setEditingQuestion(null)
     setIsEditQuestionOpen(false)
+  }
+
+  const initializeDatabase = async () => {
+    setIsInitializing(true)
+    try {
+      const response = await fetch('/api/init-db', { method: 'POST' })
+      const data = await response.json()
+      console.log('Database initialized:', data)
+      
+      // Refresh questions after initialization
+      const questionsResponse = await fetch('/api/questions')
+      const questionsData = await questionsResponse.json()
+      if (questionsData.questions) {
+        const normalized: Question[] = questionsData.questions.map((q: any) => ({
+          ...q,
+          options: q.options || undefined,
+          left_items: q.left_items || undefined,
+          right_items: q.right_items || undefined,
+        }))
+        setAllQuestions(normalized)
+        setOptions(questionsData.options || { classes: [], subjects: [], topics: [], types: [] })
+      }
+    } catch (error) {
+      console.error('Error initializing database:', error)
+    } finally {
+      setIsInitializing(false)
+    }
   }
 
   const exportPDF = () => {
@@ -415,39 +457,54 @@ export default function CreatePage() {
               </div>
             )}
 
-            {/* List in its own scroll area - only show when Class and Subject are selected */}
-            {(filters.class && filters.subject) ? (
-              <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 min-h-0">
-                <div className="space-y-1">
-                  {questions.map(q => {
-                    // Check if this question is added by looking for the original question_id in paper items
-                    const added = paper.some(x => x.kind === 'question' && x.question.question_id.startsWith(`paper_${q.question_id}_`))
-                    return (
-                      <div key={q.question_id} id={q.question_id}>
-                        <QuestionRow q={q} isAdded={added} onAdd={(qq) => { 
-                          if (!added) {
-                            // Create an independent copy of the question with a new unique ID
-                            const questionCopy: Question = {
-                              ...qq,
-                              question_id: `paper_${qq.question_id}_${Date.now()}`, // Unique ID for paper copy
-                              // Keep all other properties as copies
-                            }
-                            setPaper(prev => [...prev, { kind: 'question', id: questionCopy.question_id, question: questionCopy }])
+        {/* List in its own scroll area - only show when Class and Subject are selected */}
+        {(filters.class && filters.subject) ? (
+          <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 min-h-0">
+            {questions.length > 0 ? (
+              <div className="space-y-1">
+                {questions.map(q => {
+                  // Check if this question is added by looking for the original question_id in paper items
+                  const added = paper.some(x => x.kind === 'question' && x.question.question_id.startsWith(`paper_${q.question_id}_`))
+                  return (
+                    <div key={q.question_id} id={q.question_id}>
+                      <QuestionRow q={q} isAdded={added} onAdd={(qq) => { 
+                        if (!added) {
+                          // Create an independent copy of the question with a new unique ID
+                          const questionCopy: Question = {
+                            ...qq,
+                            question_id: `paper_${qq.question_id}_${Date.now()}`, // Unique ID for paper copy
+                            // Keep all other properties as copies
                           }
-                        }}/>
-                      </div>
-                    )
-                  })}
-                </div>
+                          setPaper(prev => [...prev, { kind: 'question', id: questionCopy.question_id, question: questionCopy }])
+                        }
+                      }}/>
+                    </div>
+                  )
+                })}
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center min-h-0">
+              <div className="flex items-center justify-center min-h-0">
                 <div className="text-center text-gray-400 text-sm">
-                  <div className="mb-2">Select Class and Subject to view questions</div>
-                  <div className="text-xs text-gray-500">Use the filters above to get started</div>
+                  <div className="mb-2">No questions found</div>
+                  <div className="text-xs text-gray-500">Try adjusting your filters or add sample questions</div>
                 </div>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center min-h-0">
+            <div className="text-center text-gray-400 text-sm">
+              <div className="mb-2">Select Class and Subject to view questions</div>
+              <div className="text-xs text-gray-500">Use the filters above to get started</div>
+              {allQuestions.length === 0 && (
+                <div className="mt-4">
+                  <div className="text-xs text-gray-500 mb-2">No questions in database yet</div>
+                  <div className="text-xs text-blue-400">Click "Add Sample Questions" to get started</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
             
             {/* Pagination at bottom - only show when Class and Subject are selected */}
             {(filters.class && filters.subject) && (
@@ -468,6 +525,15 @@ export default function CreatePage() {
             <div className="flex items-center justify-between gap-2 flex-shrink-0">
               <h2 className="text-lg font-bold text-white">Main Question Paper</h2>
               <div className="flex items-center gap-1">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={initializeDatabase} 
+                  disabled={isInitializing}
+                  className="h-7 px-2 text-xs border-gray-600 text-white hover:bg-gray-800"
+                >
+                  {isInitializing ? 'Loading...' : 'Add Sample Questions'}
+                </Button>
                 <Button size="sm" variant="outline" onClick={() => { setIsSectionOpen(true) }} className="h-7 px-2 text-xs border-gray-600 text-white hover:bg-gray-800">Add Section</Button>
                 <Button size="sm" className="rounded bg-blue-600 hover:bg-blue-700 text-white h-7 px-2 text-xs" onClick={exportPDF}><Download className="w-3 h-3 mr-1"/>Export PDF</Button>
               </div>

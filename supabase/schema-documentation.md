@@ -81,6 +81,30 @@ This document describes the complete database schema for the Project Halo Exam G
   }
   ```
 
+### 5. Long Answer Type (`long_answer`)
+- **Description**: Extended open-ended questions requiring detailed written responses
+- **Required Fields**: `question_text`, `question_answer`
+- **Optional Fields**: `class`, `topic`, `subject`, `default_marks`
+- **Example**:
+  ```json
+  {
+    "question_text": "Discuss the causes and effects of climate change in detail.",
+    "question_answer": "Climate change is caused by greenhouse gas emissions, deforestation, and industrial activities. Effects include rising temperatures, sea level rise, and extreme weather events."
+  }
+  ```
+
+### 6. Write Reasons for the Following (`write_reasons`)
+- **Description**: Questions asking students to provide reasons or explanations for given statements
+- **Required Fields**: `question_text`, `question_answer`
+- **Optional Fields**: `class`, `topic`, `subject`, `default_marks`
+- **Example**:
+  ```json
+  {
+    "question_text": "Write reasons for the following: Why is photosynthesis important for life on Earth?",
+    "question_answer": "Photosynthesis is important because it produces oxygen, removes carbon dioxide, and provides food for the food chain."
+  }
+  ```
+
 ## Database Indexes
 
 The following indexes are created for optimal query performance:

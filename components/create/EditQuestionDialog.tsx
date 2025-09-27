@@ -262,6 +262,34 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
               />
             </div>
           )}
+
+          {/* Long Answer Type */}
+          {formData.question_type === 'long_answer' && (
+            <div>
+              <Label htmlFor="questionAnswer" className="text-gray-300 text-sm">Expected Answer (for reference)</Label>
+              <Textarea 
+                id="questionAnswer"
+                value={formData.question_answer || ""} 
+                onChange={(e) => setFormData({...formData, question_answer: e.target.value})} 
+                className="mt-1 h-24 text-sm bg-gray-800 border-gray-600 text-white"
+                placeholder="Enter the expected answer or key points..."
+              />
+            </div>
+          )}
+
+          {/* Write Reasons for the Following */}
+          {formData.question_type === 'write_reasons' && (
+            <div>
+              <Label htmlFor="questionAnswer" className="text-gray-300 text-sm">Expected Reasons (for reference)</Label>
+              <Textarea 
+                id="questionAnswer"
+                value={formData.question_answer || ""} 
+                onChange={(e) => setFormData({...formData, question_answer: e.target.value})} 
+                className="mt-1 h-24 text-sm bg-gray-800 border-gray-600 text-white"
+                placeholder="Enter the expected reasons or explanations..."
+              />
+            </div>
+          )}
         </div>
 
         <DialogFooter>

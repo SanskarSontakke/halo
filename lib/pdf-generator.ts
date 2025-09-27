@@ -1,110 +1,137 @@
 import jsPDF from "jspdf"
-import type { Question, ExamDetails } from "@/components/exam-creator"
+import type { PaperItem } from "@/app/create/types"
 
-export function generateExamPDF(examDetails: ExamDetails, questions: Question[]) {
+interface PDFDetails {
+  schoolName: string
+  className: string
+  topicName: string
+  date: string
+  testName: string
+}
+
+export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails) => {
   const pdf = new jsPDF()
-  const pageWidth = pdf.internal.pageSize.getWidth()
-  const pageHeight = pdf.internal.pageSize.getHeight()
-  const margin = 15 // Reduced margin to save space
-  const contentWidth = pageWidth - 2 * margin
-  let currentY = margin
+  
+  // Page setup
+  const pageW = pdf.internal.pageSize.getWidth()
+  const margin = 15
+  const contentW = pageW - 2 * margin
+  const maxMarks = paper.reduce((sum, it) => it.kind === 'question' ? sum + (Number(it.question.default_marks) || 0) : sum, 0)
 
-  // Helper function to add text with word wrapping
-  const addWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize = 10) => {
-    pdf.setFontSize(fontSize)
-    const lines = pdf.splitTextToSize(text, maxWidth)
-    pdf.text(lines, x, y)
-    return y + lines.length * fontSize * 0.35 // Reduced line spacing
-  }
-
-  // Helper function to check if we need a new page
-  const checkNewPage = (requiredSpace: number) => {
-    if (currentY + requiredSpace > pageHeight - margin) {
-      pdf.addPage()
-      currentY = margin
-      return true
-    }
-    return false
-  }
-
-  pdf.setDrawColor(0, 0, 0)
-  pdf.setLineWidth(0.8)
-  pdf.rect(margin, currentY, contentWidth, 32) // Slightly taller header box for better proportions
-
-  // Header content inside box with improved spacing
+  // Header
   pdf.setFontSize(16)
-  pdf.setFont("helvetica", "bold")
-  // Center the school name
-  const schoolNameWidth = pdf.getTextWidth(examDetails.schoolName)
-  const schoolNameX = margin + (contentWidth - schoolNameWidth) / 2
-  pdf.text(examDetails.schoolName, schoolNameX, currentY + 10)
+  const schoolText = (details.schoolName || '').trim() || 'SCHOOL'
+  const schoolW = pdf.getTextWidth(schoolText)
+  const schoolX = margin + (contentW - schoolW) / 2
+  pdf.text(schoolText, schoolX, 20)
 
-  // Add a subtle line under school name
-  pdf.setLineWidth(0.3)
-  pdf.line(margin + 20, currentY + 13, pageWidth - margin - 20, currentY + 13)
+  // Test name
+  pdf.setFontSize(14)
+  const testNameText = (details.testName || '').trim() || 'Test Name'
+  const tnW = pdf.getTextWidth(testNameText)
+  const tnX = margin + (contentW - tnW) / 2
+  pdf.text(testNameText, tnX, 30)
 
-  pdf.setFontSize(9)
-  pdf.setFont("helvetica", "normal")
-  const headerLine1 = `${examDetails.examName} | Subject: ${examDetails.subject} | Topic: ${examDetails.topic}`
-  const headerLine2 = `Date: ${new Date(examDetails.examDate).toLocaleDateString()} | Class: ${examDetails.class} | Total Marks: ${examDetails.totalMarks} | Time: ${examDetails.time} hours`
-
-  // Center align the exam details
-  const line1Width = pdf.getTextWidth(headerLine1)
-  const line2Width = pdf.getTextWidth(headerLine2)
-  const line1X = margin + (contentWidth - line1Width) / 2
-  const line2X = margin + (contentWidth - line2Width) / 2
-
-  pdf.text(headerLine1, line1X, currentY + 20)
-  pdf.text(headerLine2, line2X, currentY + 27)
-
-  currentY += 37 // Adjusted spacing after header
+  // Details row
+  pdf.setFontSize(12)
+  const topicText = `Topic: ${details.topicName || '-'}`
+  const classText = `Class: ${details.className || '-'}`
+  const dateText = `Date: ${details.date || '-'}`
+  const mmText = `Max Marks: ${maxMarks}`
+  const cols = 4
+  const colW = contentW / cols
+  pdf.text(topicText, margin, 45)
+  pdf.text(classText, margin + colW, 45)
+  pdf.text(dateText, margin + 2 * colW, 45)
+  pdf.text(mmText, margin + 3 * colW, 45)
 
   // Questions
-  questions.forEach((question, index) => {
-    // Check if we need space for the question (estimate)
-    const estimatedSpace = question.question_type === "MCQ" ? 25 : 20
-    checkNewPage(estimatedSpace)
+  let y = 60
+  let qNum = 1
+  const lineHeight = 5
+  const questionTopGap = 2
+  const indent = 8
 
-    pdf.setFont("helvetica", "bold")
-    pdf.setFontSize(10)
-    const questionHeader = `Q${index + 1}. (${question.default_marks} marks) ${question.question_text}`
-    currentY = addWrappedText(questionHeader, margin, currentY, contentWidth, 10)
-    currentY += 3 // Reduced spacing
+  paper.forEach(it => {
+    if (y > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin }
 
-    pdf.setFont("helvetica", "normal")
-
-    // Handle different question types
-    if (question.question_type === "MCQ" && question.options) {
-      const optionsText = question.options.map((option) => `${option.id.toUpperCase()}) ${option.text}`).join("  ")
-      currentY = addWrappedText(optionsText, margin + 5, currentY, contentWidth - 5, 9)
-      currentY += 8
-    } else if (question.question_type === "True/False") {
-      pdf.text("True ☐  False ☐", margin + 5, currentY)
-      currentY += 10
-    } else {
-      currentY += 5
+    if (it.kind === 'section') {
+      // Section header
+      pdf.setFontSize(12)
+      const txt = it.text
+      const label = (it.prefix ? it.prefix + ' ' : '') + txt
+      pdf.text(label, margin, y)
+      y += lineHeight + questionTopGap
+      return
     }
 
-    currentY += 5 // Reduced space between questions
+    // Question
+    pdf.setFontSize(12)
+    const qText = `${qNum}. ${it.question.question_text}`
+    const markText = `[${it.question.default_marks || 0}]`
+    const markW = pdf.getTextWidth(markText)
+    const availableW = contentW - markW - indent - 4
+
+    const lines = pdf.splitTextToSize(qText, availableW)
+    pdf.text(lines, margin + indent, y)
+    const lastLineY = y + (lines.length - 1) * lineHeight
+    pdf.text(markText, margin + contentW - markW, lastLineY)
+    y += lines.length * lineHeight
+
+    // Uniform compact spacing after question
+    const questionToOptionsGap = 1
+
+    // MCQ options in compact inline text
+    if (String(it.question.question_type).toLowerCase() === 'multiple_choice' && it.question.options) {
+      pdf.setFontSize(10)
+      const opts = it.question.options
+      const optionPairs = Object.keys(opts).sort().map(k => `${k}) ${opts[k]}`)
+      const optionsLine = optionPairs.join('    ')
+      const optLines = pdf.splitTextToSize(optionsLine, availableW)
+      const optLineHeight = 3.8
+      pdf.text(optLines, margin + indent + 4, y + questionToOptionsGap)
+      y += questionToOptionsGap + optLines.length * optLineHeight
+      // bottom padding after options
+      y += questionTopGap
+      pdf.setFontSize(12)
+    } else if (String(it.question.question_type).toLowerCase() === 'match_pairs' && (it.question.left_items || it.question.right_items)) {
+      // Match-the-pairs: draw two columns with consistent gap
+      pdf.setFontSize(10)
+      const left = it.question.left_items || []
+      const right = it.question.right_items || []
+      const n = Math.max(left.length, right.length)
+
+      const leftTexts = Array.from({ length: n }, (_, i) => left[i] ? `${String.fromCharCode(65 + i)}) ${left[i]}` : '')
+      const rightTexts = Array.from({ length: n }, (_, i) => right[i] ? `${i + 1}) ${right[i]}` : '')
+
+      // Measure max left width to align right column
+      const xLeft = margin + indent + 4
+      const leftWidths = leftTexts.map(t => pdf.getTextWidth(t))
+      const leftMaxW = Math.max(0, ...leftWidths)
+      const colGap = 12
+      const xRight = xLeft + leftMaxW + colGap
+      const rowHeight = 4.2
+
+      let yy = y + questionToOptionsGap
+      for (let i = 0; i < n; i++) {
+        if (leftTexts[i]) pdf.text(leftTexts[i], xLeft, yy)
+        if (rightTexts[i]) pdf.text(rightTexts[i], xRight, yy)
+        yy += rowHeight
+      }
+      y = yy
+      y += questionTopGap
+      pdf.setFontSize(12)
+    } else if (String(it.question.question_type).toLowerCase() === 'long_answer' || 
+               String(it.question.question_type).toLowerCase() === 'write_reasons') {
+      // Long answer and write reasons questions - add space for answer
+      y += questionTopGap + 8 // Extra space for long answers
+    } else {
+      // bottom padding after other question types
+      y += questionTopGap
+    }
+    if (y > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin }
+    qNum += 1
   })
-
-  checkNewPage(15)
-  currentY = Math.max(currentY, pageHeight - 25)
-
-  pdf.setDrawColor(0, 0, 0)
-  pdf.line(margin, currentY, pageWidth - margin, currentY)
-  currentY += 8
-
-  pdf.setFontSize(9)
-  pdf.text(
-    `Total Questions: ${questions.length}  Total Marks: ${questions.reduce((sum, q) => sum + q.default_marks, 0)}`,
-    margin,
-    currentY,
-  )
-
-  // Generate filename
-  const filename = `${examDetails.examName.replace(/\s+/g, "_")}_${examDetails.subject.replace(/\s+/g, "_")}.pdf`
-
-  // Save the PDF
-  pdf.save(filename)
+  
+  pdf.save("question_paper.pdf")
 }

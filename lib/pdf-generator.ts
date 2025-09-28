@@ -14,23 +14,40 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
   
   // Page setup - reduced margins for more compact layout
   const pageW = pdf.internal.pageSize.getWidth()
-  const margin = 10
+  const margin = 8
   const contentW = pageW - 2 * margin
   const maxMarks = paper.reduce((sum, it) => it.kind === 'question' ? sum + (Number(it.question.default_marks) || 0) : sum, 0)
 
-  // Header - reduced top spacing
+  // Header - school name inside a box with minimal top spacing
   pdf.setFontSize(16)
   const schoolText = (details.schoolName || '').trim() || 'SCHOOL'
   const schoolW = pdf.getTextWidth(schoolText)
-  const schoolX = margin + (contentW - schoolW) / 2
-  pdf.text(schoolText, schoolX, 15)
+  const schoolBoxPaddingX = 4
+  const schoolBoxH = 10
+  const schoolBoxW = schoolW + schoolBoxPaddingX * 2
+  const schoolBoxX = margin + (contentW - schoolBoxW) / 2
+  const schoolBoxY = 8
+  // Draw box and then text centered within
+  pdf.setDrawColor(0, 0, 0)
+  pdf.setLineWidth(0.5)
+  pdf.rect(schoolBoxX, schoolBoxY, schoolBoxW, schoolBoxH)
+  const schoolTextX = margin + (contentW - schoolW) / 2
+  const schoolTextY = schoolBoxY + 7
+  pdf.text(schoolText, schoolTextX, schoolTextY)
 
-  // Test name
+  // Test name in its own box directly beneath
   pdf.setFontSize(14)
   const testNameText = (details.testName || '').trim() || 'Test Name'
   const tnW = pdf.getTextWidth(testNameText)
+  const testBoxPaddingX = 4
+  const testBoxH = 10
+  const testBoxW = tnW + testBoxPaddingX * 2
+  const testBoxX = margin + (contentW - testBoxW) / 2
+  const testBoxY = schoolBoxY + schoolBoxH + 2
+  pdf.rect(testBoxX, testBoxY, testBoxW, testBoxH)
   const tnX = margin + (contentW - tnW) / 2
-  pdf.text(testNameText, tnX, 23)
+  const tnY = testBoxY + 7
+  pdf.text(testNameText, tnX, tnY)
 
   // Details row with box around it
   pdf.setFontSize(12)
@@ -41,8 +58,8 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
   const cols = 4
   const colW = contentW / cols
   
-  // Draw box around details
-  const boxY = 28
+  // Draw box around details just below the test box
+  const boxY = testBoxY + testBoxH + 3
   const boxHeight = 12
   pdf.setDrawColor(0, 0, 0)
   pdf.setLineWidth(0.5)
@@ -55,7 +72,7 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
   pdf.text(mmText, margin + 3 * colW + 2, boxY + 7)
 
   // Questions - start closer to details box
-  let y = 45
+  let y = boxY + boxHeight + 5
   let qNum = 1
   const lineHeight = 4.5
   const questionTopGap = 1

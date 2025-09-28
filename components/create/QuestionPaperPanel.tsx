@@ -72,7 +72,7 @@ export default function QuestionPaperPanel({
         >
           <div 
             ref={setPaperDroppable}
-            className="flex-1 overflow-y-auto overflow-x-hidden pr-1 min-h-0"
+            className="flex-1 overflow-y-auto overflow-x-hidden pr-1 min-h-0 touch-pan-y"
           >
             {paper.length > 0 ? (
               <SortableContext items={paper.map(it => it.id)} strategy={verticalListSortingStrategy}>

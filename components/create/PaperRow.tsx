@@ -14,7 +14,7 @@ export default function PaperRow({ item, onRemove, onEditSection, onEditQuestion
     <div ref={setNodeRef} style={style} className="relative group text-white">
       {item.kind === 'section' ? (
         <div className="flex items-center gap-2 p-2 rounded border bg-gray-800 border-gray-700">
-          <div {...attributes} {...listeners} className="p-1 cursor-grab active:cursor-grabbing"><GripVertical className="w-3 h-3 text-gray-400" /></div>
+          <div {...attributes} {...listeners} className="p-1 cursor-grab active:cursor-grabbing touch-none"><GripVertical className="w-3 h-3 text-gray-400" /></div>
           <div className="flex-1 flex items-center gap-1">
             {item.prefix ? <span className="text-xs text-gray-300 whitespace-nowrap">{item.prefix}</span> : null}
             <div className="w-full text-center text-xs text-gray-300">{item.text || 'Section'}</div>
@@ -26,7 +26,7 @@ export default function PaperRow({ item, onRemove, onEditSection, onEditQuestion
         </div>
       ) : (
         <div className="flex items-start gap-2 p-2 rounded border bg-gray-800 border-gray-700 overflow-hidden">
-          <div {...attributes} {...listeners} className="p-1 cursor-grab active:cursor-grabbing flex-shrink-0"><GripVertical className="w-3 h-3 text-gray-400" /></div>
+          <div {...attributes} {...listeners} className="p-1 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"><GripVertical className="w-3 h-3 text-gray-400" /></div>
           <div className="flex-1 space-y-1 min-w-0">
             <div className="flex items-start justify-between gap-1 min-w-0">
               <p className="font-medium text-xs truncate flex-1 min-w-0 text-white">{item.question.question_text}</p>

@@ -1,11 +1,22 @@
 import { useState } from "react"
-import { useSensors, useSensor, PointerSensor, DragEndEvent } from "@dnd-kit/core"
+import { useSensors, useSensor, DragEndEvent, MouseSensor, TouchSensor } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
 import type { PaperItem } from "@/app/create/types"
 
 export const useDragAndDrop = (paper: PaperItem[], setPaper: (items: PaperItem[]) => void) => {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const sensors = useSensors(useSensor(PointerSensor))
+
+  // Use dedicated sensors for mouse and touch. Touch sensor uses a small delay/tolerance
+  // so that scrolling still works naturally while enabling drag on long-press.
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
+      },
+    })
+  )
 
   const onDragStart = (e?: any) => {
     setActiveId(e?.active?.id || null)

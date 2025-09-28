@@ -75,61 +75,61 @@ export default function CreatePage() {
 
   return (
     <main className="container mx-auto p-2 sm:p-3 max-w-7xl space-y-3">
-      {/* Main Details Section */}
-      <MainDetailsSection 
-        details={details}
-        onDetailsChange={setDetails}
-      />
+        {/* Main Details Section */}
+        <MainDetailsSection 
+          details={details}
+          onDetailsChange={setDetails}
+        />
 
-      {/* Filters Section */}
-      <FiltersSection
-        filters={filters}
-        onFiltersChange={setFilters}
-        onPageChange={setPage}
-        availableClassesForSubject={availableClassesForSubject}
-        availableSubjects={availableSubjects}
-        filteredTopics={filteredTopics}
-        filteredTypes={filteredTypes}
-      />
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[calc(100vh-200px)]">
-        {/* Question Set Panel */}
-        <QuestionSetPanel
-          questions={questions}
-          paper={paper}
-          onAddQuestion={addQuestionToPaper}
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
+        {/* Filters Section */}
+        <FiltersSection
           filters={filters}
-          allQuestionsCount={allQuestions.length}
+          onFiltersChange={setFilters}
+          onPageChange={setPage}
+          availableClassesForSubject={availableClassesForSubject}
+          availableSubjects={availableSubjects}
+          filteredTopics={filteredTopics}
+          filteredTypes={filteredTypes}
         />
 
-        {/* Main Question Paper Panel */}
-        <QuestionPaperPanel
-          paper={paper}
-          onPaperChange={setPaper}
-          onRemoveFromPaper={removeFromPaper}
-          onEditQuestion={handleEditQuestion}
-          isSectionOpen={isSectionOpen}
-          onSectionOpenChange={setIsSectionOpen}
-          onAddSection={addSectionToPaper}
-          onExportPDF={exportPDF}
-          activeId={activeId}
-          sensors={sensors}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-        />
-      </div>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 h-[calc(100vh-200px)]">
+          {/* Question Set Panel */}
+          <QuestionSetPanel
+            questions={questions}
+            paper={paper}
+            onAddQuestion={addQuestionToPaper}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            filters={filters}
+            allQuestionsCount={allQuestions.length}
+          />
 
-      {/* Edit Question Dialog */}
-      <EditQuestionDialog
-        open={isEditQuestionOpen}
-        onOpenChange={setIsEditQuestionOpen}
-        question={editingQuestion}
-        onSubmit={handleUpdateQuestion}
-      />
-    </main>
+          {/* Main Question Paper Panel */}
+          <QuestionPaperPanel
+            paper={paper}
+            onPaperChange={setPaper}
+            onRemoveFromPaper={removeFromPaper}
+            onEditQuestion={handleEditQuestion}
+            isSectionOpen={isSectionOpen}
+            onSectionOpenChange={setIsSectionOpen}
+            onAddSection={addSectionToPaper}
+            onExportPDF={exportPDF}
+            activeId={activeId}
+            sensors={sensors}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+          />
+        </div>
+
+        {/* Edit Question Dialog */}
+        <EditQuestionDialog
+          open={isEditQuestionOpen}
+          onOpenChange={setIsEditQuestionOpen}
+          question={editingQuestion}
+          onSubmit={handleUpdateQuestion}
+        />
+      </main>
   )
 }

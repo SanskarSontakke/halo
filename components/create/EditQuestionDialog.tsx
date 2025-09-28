@@ -25,6 +25,11 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
   const [newPairLeft, setNewPairLeft] = useState("")
   const [newPairRight, setNewPairRight] = useState("")
   const [newSubpart, setNewSubpart] = useState("")
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (question) {
@@ -37,16 +42,20 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
   const handleSubmit = () => {
     if (!question) return
     
-    const updatedQuestion: Question = {
-      ...question,
-      ...formData,
-      left_items: leftItems,
-      right_items: rightItems,
-      subparts: (formData.subparts as string[] | undefined) || null,
-    } as Question
-    
-    onSubmit(updatedQuestion)
-    onOpenChange(false)
+    try {
+      const updatedQuestion: Question = {
+        ...question,
+        ...formData,
+        left_items: leftItems,
+        right_items: rightItems,
+        subparts: (formData.subparts as string[] | undefined) || null,
+      } as Question
+      
+      onSubmit(updatedQuestion)
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Error updating question:', error)
+    }
   }
 
   const addLeftItem = () => {
@@ -94,7 +103,7 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
     setFormData({ ...formData, subparts: next })
   }
 
-  if (!question) return null
+  if (!mounted || !question) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

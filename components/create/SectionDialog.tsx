@@ -5,12 +5,17 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function SectionDialog({ open, onOpenChange, onSubmit }: { open: boolean; onOpenChange: (v: boolean) => void; onSubmit: (data: { text: string; prefix: string }) => void }) {
   const [text, setText] = useState("")
   const [prefix, setPrefix] = useState("")
   const [preset, setPreset] = useState("custom")
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const presets = [
     { value: 'fill', label: 'Fill in the blanks', text: 'Fill in the blanks' },
@@ -25,6 +30,27 @@ export default function SectionDialog({ open, onOpenChange, onSubmit }: { open: 
     setText(p?.text || "")
   }
 
+  const handleSubmit = () => {
+    try {
+      onSubmit({ text: text.trim(), prefix: prefix.trim() })
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Error submitting section:', error)
+    }
+  }
+
+  const handleClose = () => {
+    try {
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Error closing dialog:', error)
+    }
+  }
+
+  if (!mounted) {
+    return null
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700">
@@ -35,7 +61,13 @@ export default function SectionDialog({ open, onOpenChange, onSubmit }: { open: 
           <div className="grid grid-cols-3 gap-2 items-end">
             <div>
               <Label htmlFor="sectionPrefix" className="text-gray-300 text-xs">Prefix</Label>
-              <Input id="sectionPrefix" value={prefix} onChange={(e) => setPrefix(e.target.value)} placeholder="e.g., 1A)" className="h-8 text-xs bg-gray-800 border-gray-600 text-white" />
+              <Input 
+                id="sectionPrefix" 
+                value={prefix} 
+                onChange={(e) => setPrefix(e.target.value)} 
+                placeholder="e.g., 1A)" 
+                className="h-8 text-xs bg-gray-800 border-gray-600 text-white" 
+              />
             </div>
             <div className="col-span-2">
               <Label className="text-gray-300 text-xs">Preset</Label>
@@ -53,12 +85,29 @@ export default function SectionDialog({ open, onOpenChange, onSubmit }: { open: 
           </div>
           <div>
             <Label htmlFor="sectionText" className="text-gray-300 text-xs">Section title</Label>
-            <Input id="sectionText" value={text} onChange={(e) => { setText(e.target.value); setPreset('custom') }} placeholder="e.g., Fill in the blanks" className="h-8 text-xs bg-gray-800 border-gray-600 text-white" />
+            <Input 
+              id="sectionText" 
+              value={text} 
+              onChange={(e) => { setText(e.target.value); setPreset('custom') }} 
+              placeholder="e.g., Fill in the blanks" 
+              className="h-8 text-xs bg-gray-800 border-gray-600 text-white" 
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="h-7 px-2 text-xs hover:bg-gray-800">Cancel</Button>
-          <Button onClick={() => { onSubmit({ text: text.trim(), prefix: prefix.trim() }); onOpenChange(false) }} className="bg-blue-600 hover:bg-blue-700 text-white h-7 px-2 text-xs">Add</Button>
+          <Button 
+            variant="ghost" 
+            onClick={handleClose} 
+            className="h-7 px-2 text-xs hover:bg-gray-800"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            className="bg-blue-600 hover:bg-blue-700 text-white h-7 px-2 text-xs"
+          >
+            Add
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

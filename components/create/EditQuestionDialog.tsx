@@ -249,19 +249,6 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
             </div>
           )}
 
-          {/* Fill in Blanks */}
-          {formData.question_type === 'fill_in_blanks' && (
-            <div>
-              <Label htmlFor="blanks" className="text-gray-300 text-sm">Blanks (use ___ for blanks)</Label>
-              <Textarea 
-                id="blanks"
-                value={formData.blanks || ""} 
-                onChange={(e) => setFormData({...formData, blanks: e.target.value})} 
-                className="mt-1 h-20 text-sm bg-gray-800 border-gray-600 text-white"
-                placeholder="Enter text with ___ for blanks..."
-              />
-            </div>
-          )}
 
           {/* Long Answer Type */}
           {formData.question_type === 'long_answer' && (

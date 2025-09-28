@@ -32,9 +32,9 @@ export default function FiltersSection({
 
   return (
     <Card className="bg-gray-900 border-gray-700">
-      <CardContent className="p-1">
+      <CardContent className="p-0">
         <div 
-          className="flex items-center justify-between cursor-pointer p-1"
+          className="flex items-center justify-between cursor-pointer px-2 py-1"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <span className="text-sm font-medium text-white">Filters</span>
@@ -42,7 +42,7 @@ export default function FiltersSection({
         </div>
         
         {!isCollapsed && (
-          <div className="space-y-2">
+          <div className="space-y-1 px-2 pb-2">
             {/* Compact horizontal filter row - 25% width each */}
             <div className="grid grid-cols-4 gap-2">
               <div>
@@ -87,10 +87,10 @@ export default function FiltersSection({
             </div>
             
             {/* Topics and Types - horizontal layout */}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <label className="text-xs text-gray-300 whitespace-nowrap">Topics:</label>
-                <div className="flex flex-wrap gap-1 p-1 border border-gray-600 rounded bg-gray-800 flex-1">
+                <div className="flex flex-wrap gap-1 p-0.5 border border-gray-600 rounded bg-gray-800 flex-1">
                   {(filters.class && filters.subject) ? (
                     filteredTopics.length > 0 ? (
                       filteredTopics.map(t => (
@@ -118,7 +118,7 @@ export default function FiltersSection({
               </div>
               <div className="flex items-center gap-2">
                 <label className="text-xs text-gray-300 whitespace-nowrap">Type:</label>
-                <div className="flex flex-wrap gap-1 p-1 border border-gray-600 rounded bg-gray-800 flex-1">
+                <div className="flex flex-wrap gap-1 p-0.5 border border-gray-600 rounded bg-gray-800 flex-1">
                   {(filters.class && filters.subject) ? (
                     filteredTypes.length > 0 ? (
                       filteredTypes.map(tp => (

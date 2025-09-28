@@ -21,9 +21,9 @@ export default function MainDetailsSection({ details, onDetailsChange }: MainDet
 
   return (
     <Card className="bg-gray-900 border-gray-700">
-      <CardContent className="p-1">
+      <CardContent className="p-0">
         <div 
-          className="flex items-center justify-between cursor-pointer p-1"
+          className="flex items-center justify-between cursor-pointer px-2 py-1"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <span className="text-sm font-medium text-white">Main Details</span>
@@ -31,7 +31,7 @@ export default function MainDetailsSection({ details, onDetailsChange }: MainDet
         </div>
         
         {!isCollapsed && (
-          <div className="grid grid-cols-5 gap-2 mt-1">
+          <div className="grid grid-cols-5 gap-2 px-2 pb-2">
             <div>
               <label className="text-xs text-gray-300">School Name</label>
               <Input 

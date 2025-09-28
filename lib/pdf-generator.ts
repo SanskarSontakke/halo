@@ -12,27 +12,27 @@ interface PDFDetails {
 export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails) => {
   const pdf = new jsPDF()
   
-  // Page setup
+  // Page setup - reduced margins for more compact layout
   const pageW = pdf.internal.pageSize.getWidth()
-  const margin = 15
+  const margin = 10
   const contentW = pageW - 2 * margin
   const maxMarks = paper.reduce((sum, it) => it.kind === 'question' ? sum + (Number(it.question.default_marks) || 0) : sum, 0)
 
-  // Header
+  // Header - reduced top spacing
   pdf.setFontSize(16)
   const schoolText = (details.schoolName || '').trim() || 'SCHOOL'
   const schoolW = pdf.getTextWidth(schoolText)
   const schoolX = margin + (contentW - schoolW) / 2
-  pdf.text(schoolText, schoolX, 20)
+  pdf.text(schoolText, schoolX, 15)
 
   // Test name
   pdf.setFontSize(14)
   const testNameText = (details.testName || '').trim() || 'Test Name'
   const tnW = pdf.getTextWidth(testNameText)
   const tnX = margin + (contentW - tnW) / 2
-  pdf.text(testNameText, tnX, 30)
+  pdf.text(testNameText, tnX, 23)
 
-  // Details row
+  // Details row with box around it
   pdf.setFontSize(12)
   const topicText = `Topic: ${details.topicName || '-'}`
   const classText = `Class: ${details.className || '-'}`
@@ -40,16 +40,25 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
   const mmText = `Max Marks: ${maxMarks}`
   const cols = 4
   const colW = contentW / cols
-  pdf.text(topicText, margin, 45)
-  pdf.text(classText, margin + colW, 45)
-  pdf.text(dateText, margin + 2 * colW, 45)
-  pdf.text(mmText, margin + 3 * colW, 45)
+  
+  // Draw box around details
+  const boxY = 28
+  const boxHeight = 12
+  pdf.setDrawColor(0, 0, 0)
+  pdf.setLineWidth(0.5)
+  pdf.rect(margin, boxY, contentW, boxHeight)
+  
+  // Add details text inside the box
+  pdf.text(topicText, margin + 2, boxY + 7)
+  pdf.text(classText, margin + colW + 2, boxY + 7)
+  pdf.text(dateText, margin + 2 * colW + 2, boxY + 7)
+  pdf.text(mmText, margin + 3 * colW + 2, boxY + 7)
 
-  // Questions
-  let y = 60
+  // Questions - start closer to details box
+  let y = 45
   let qNum = 1
-  const lineHeight = 5
-  const questionTopGap = 2
+  const lineHeight = 4.5
+  const questionTopGap = 1
   const indent = 8
 
   paper.forEach(it => {
@@ -61,7 +70,7 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
       const txt = it.text
       const label = (it.prefix ? it.prefix + ' ' : '') + txt
       pdf.text(label, margin, y)
-      y += lineHeight + questionTopGap
+      y += lineHeight + 0.5
       return
     }
 
@@ -79,7 +88,7 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
     y += lines.length * lineHeight
 
     // Uniform compact spacing after question
-    const questionToOptionsGap = 1
+    const questionToOptionsGap = 0.5
 
     // MCQ options in compact inline text
     if (String(it.question.question_type).toLowerCase() === 'multiple_choice' && it.question.options) {
@@ -88,11 +97,11 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
       const optionPairs = Object.keys(opts).sort().map(k => `${k}) ${opts[k]}`)
       const optionsLine = optionPairs.join('    ')
       const optLines = pdf.splitTextToSize(optionsLine, availableW)
-      const optLineHeight = 3.8
+      const optLineHeight = 3.5
       pdf.text(optLines, margin + indent + 4, y + questionToOptionsGap)
       y += questionToOptionsGap + optLines.length * optLineHeight
       // bottom padding after options
-      y += questionTopGap
+      y += 0.5
       pdf.setFontSize(12)
     } else if (String(it.question.question_type).toLowerCase() === 'match_pairs' && (it.question.left_items || it.question.right_items)) {
       // Match-the-pairs: draw two columns with consistent gap
@@ -110,7 +119,7 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
       const leftMaxW = Math.max(0, ...leftWidths)
       const colGap = 12
       const xRight = xLeft + leftMaxW + colGap
-      const rowHeight = 4.2
+      const rowHeight = 3.8
 
       let yy = y + questionToOptionsGap
       for (let i = 0; i < n; i++) {
@@ -119,15 +128,15 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
         yy += rowHeight
       }
       y = yy
-      y += questionTopGap
+      y += 0.5
       pdf.setFontSize(12)
     } else if (String(it.question.question_type).toLowerCase() === 'long_answer' || 
                String(it.question.question_type).toLowerCase() === 'write_reasons') {
       // Long answer and write reasons questions - add space for answer
-      y += questionTopGap + 8 // Extra space for long answers
+      y += questionToOptionsGap + 6 // Extra space for long answers
     } else {
       // bottom padding after other question types
-      y += questionTopGap
+      y += questionToOptionsGap
     }
     if (y > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin }
     qNum += 1

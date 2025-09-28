@@ -18,33 +18,29 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
   const contentW = pageW - 2 * margin
   const maxMarks = paper.reduce((sum, it) => it.kind === 'question' ? sum + (Number(it.question.default_marks) || 0) : sum, 0)
 
-  // Header - school name inside a box with minimal top spacing
+  // Header - school name inside a full-width box with minimal top spacing
   pdf.setFontSize(16)
   const schoolText = (details.schoolName || '').trim() || 'SCHOOL'
   const schoolW = pdf.getTextWidth(schoolText)
-  const schoolBoxPaddingX = 4
   const schoolBoxH = 10
-  const schoolBoxW = schoolW + schoolBoxPaddingX * 2
-  const schoolBoxX = margin + (contentW - schoolBoxW) / 2
+  const schoolBoxX = margin
   const schoolBoxY = 8
-  // Draw box and then text centered within
+  // Draw full-width box and then centered text
   pdf.setDrawColor(0, 0, 0)
   pdf.setLineWidth(0.5)
-  pdf.rect(schoolBoxX, schoolBoxY, schoolBoxW, schoolBoxH)
+  pdf.rect(schoolBoxX, schoolBoxY, contentW, schoolBoxH)
   const schoolTextX = margin + (contentW - schoolW) / 2
   const schoolTextY = schoolBoxY + 7
   pdf.text(schoolText, schoolTextX, schoolTextY)
 
-  // Test name in its own box directly beneath
+  // Test name in its own full-width box directly beneath
   pdf.setFontSize(14)
   const testNameText = (details.testName || '').trim() || 'Test Name'
   const tnW = pdf.getTextWidth(testNameText)
-  const testBoxPaddingX = 4
   const testBoxH = 10
-  const testBoxW = tnW + testBoxPaddingX * 2
-  const testBoxX = margin + (contentW - testBoxW) / 2
+  const testBoxX = margin
   const testBoxY = schoolBoxY + schoolBoxH + 2
-  pdf.rect(testBoxX, testBoxY, testBoxW, testBoxH)
+  pdf.rect(testBoxX, testBoxY, contentW, testBoxH)
   const tnX = margin + (contentW - tnW) / 2
   const tnY = testBoxY + 7
   pdf.text(testNameText, tnX, tnY)

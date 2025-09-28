@@ -31,7 +31,7 @@ export default function MainDetailsSection({ details, onDetailsChange }: MainDet
         </div>
         
         {!isCollapsed && (
-          <div className="grid grid-cols-5 gap-2 px-2 pb-0">
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 px-2 pb-0">
             <div>
               <label className="text-xs text-gray-300">School Name</label>
               <Input 

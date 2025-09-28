@@ -42,7 +42,7 @@ export default function FiltersSection({
         </div>
         
         {!isCollapsed && (
-          <div className="space-y-1 px-2 pb-2">
+          <div className="space-y-1 px-2 pb-0">
             {/* Compact horizontal filter row - 25% width each */}
             <div className="grid grid-cols-4 gap-2">
               <div>
@@ -71,7 +71,7 @@ export default function FiltersSection({
                   placeholder="Search questions..." 
                   value={filters.search || ""} 
                   onChange={(e) => { onPageChange(1); onFiltersChange({ ...filters, search: e.target.value }) }} 
-                  className="h-8 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-full"
+                  className="h-9 text-xs bg-gray-800 border-gray-600 text-white focus:ring-1 focus:ring-blue-500/40 w-full"
                 />
               </div>
               <div>
@@ -79,7 +79,7 @@ export default function FiltersSection({
                 <Button 
                   variant="ghost" 
                   onClick={() => { onFiltersChange({ topics: [], types: [] }); onPageChange(1) }} 
-                  className="h-8 px-3 text-xs hover:bg-gray-800 w-full"
+                  className="h-9 px-3 text-xs bg-gray-800 w-full"
                 >
                   Clear
                 </Button>

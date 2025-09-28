@@ -94,6 +94,7 @@ export const useCreatePageState = () => {
             blanks: q.blanks || null,
             question_answer: q.question_answer || null,
             correct_option_id: q.correct_option_id || null,
+            subparts: q.subparts || null,
           }))
           setAllQuestions(normalized)
         }

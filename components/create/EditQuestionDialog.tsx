@@ -24,6 +24,7 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
   const [newRightItem, setNewRightItem] = useState("")
   const [newPairLeft, setNewPairLeft] = useState("")
   const [newPairRight, setNewPairRight] = useState("")
+  const [newSubpart, setNewSubpart] = useState("")
 
   useEffect(() => {
     if (question) {
@@ -41,6 +42,7 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
       ...formData,
       left_items: leftItems,
       right_items: rightItems,
+      subparts: (formData.subparts as string[] | undefined) || null,
     } as Question
     
     onSubmit(updatedQuestion)
@@ -76,6 +78,20 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
 
   const removeRightItem = (index: number) => {
     setRightItems(rightItems.filter((_, i) => i !== index))
+  }
+
+  const addSubpart = () => {
+    if (newSubpart.trim()) {
+      const list = [...(formData.subparts || []) as string[], newSubpart.trim()]
+      setFormData({ ...formData, subparts: list })
+      setNewSubpart("")
+    }
+  }
+
+  const removeSubpart = (index: number) => {
+    const list = (formData.subparts || []) as string[]
+    const next = list.filter((_, i) => i !== index)
+    setFormData({ ...formData, subparts: next })
   }
 
   if (!question) return null
@@ -249,6 +265,45 @@ export default function EditQuestionDialog({ open, onOpenChange, question, onSub
             </div>
           )}
 
+          {/* Multi-part (subparts) */}
+          {formData.question_type === 'multi_part' && (
+            <div>
+              <Label className="text-gray-300 text-sm">Subparts</Label>
+              <div className="mt-1 space-y-2">
+                {(formData.subparts || []).map((sp, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm w-6">{String.fromCharCode(97 + index)})</span>
+                    <Input 
+                      value={sp} 
+                      onChange={(e) => {
+                        const list = [...(formData.subparts || []) as string[]]
+                        list[index] = e.target.value
+                        setFormData({ ...formData, subparts: list })
+                      }}
+                      className="h-8 text-sm bg-gray-800 border-gray-600 text-white"
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => removeSubpart(index)}
+                      className="h-8 px-2 text-xs hover:bg-gray-700"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2">
+                  <Input 
+                    value={newSubpart} 
+                    onChange={(e) => setNewSubpart(e.target.value)}
+                    placeholder="Add subpart text"
+                    className="h-8 text-sm bg-gray-800 border-gray-600 text-white flex-1"
+                  />
+                  <Button size="sm" variant="outline" onClick={addSubpart} className="h-8 px-2 text-xs border-gray-600 text-white hover:bg-gray-800">Add</Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Long Answer Type */}
           {formData.question_type === 'long_answer' && (

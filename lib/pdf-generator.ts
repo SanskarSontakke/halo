@@ -143,6 +143,21 @@ export const generateQuestionPaperPDF = (paper: PaperItem[], details: PDFDetails
       y = yy
       y += 0.5
       pdf.setFontSize(12)
+    } else if (String(it.question.question_type).toLowerCase() === 'multi_part' && it.question.subparts && it.question.subparts.length > 0) {
+      // Render subparts a), b), c) under the question
+      pdf.setFontSize(11)
+      const subIndent = indent + 6
+      const subLineHeight = 4.2
+      let sy = y + questionToOptionsGap
+      it.question.subparts.forEach((sp, idx) => {
+        const label = `${String.fromCharCode(97 + idx)}) ${sp}`
+        const subLines = pdf.splitTextToSize(label, contentW - subIndent - 4)
+        pdf.text(subLines, margin + subIndent, sy)
+        sy += subLines.length * subLineHeight
+      })
+      y = sy
+      pdf.setFontSize(12)
+      y += 0.5
     } else if (String(it.question.question_type).toLowerCase() === 'long_answer' || 
                String(it.question.question_type).toLowerCase() === 'write_reasons') {
       // Long answer and write reasons questions - add space for answer

@@ -12,6 +12,8 @@ export type Question = {
   blanks?: string | null
   question_answer?: string | null
   correct_option_id?: string | null
+  // New: subparts for questions with a), b), c) style sub-questions
+  subparts?: string[] | null
 }
 
 export type PaperItem =
